@@ -27,7 +27,7 @@ with open('README.rst') as readmefile:
 class PyTest(test):
     def finalize_options(self):
         test.finalize_options(self)
-        self.test_args = ['tests_pycsob']
+        self.test_args = []
         self.test_suite = True
 
     def run_tests(self):
