@@ -1,0 +1,10 @@
+include *.pip
+include *.rst
+
+recursive-include pycsob *
+recursive-include tests_pycsob *
+
+global-exclude .coverage
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .DS_Store
