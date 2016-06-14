@@ -145,7 +145,7 @@ class CsobClient(object):
     def payment_close(self, pay_id, total_amount=None):
         url = utils.mk_url(
             base_url=self.base_url,
-            endpoint_url='payment/reverse/'
+            endpoint_url='payment/close/'
         )
         payload = self.req_payload(pay_id, totalAmount=total_amount)
         r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
