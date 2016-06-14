@@ -179,6 +179,10 @@ class CsobClient(object):
         return self.validate_response(r)
 
     def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
+        """
+        Initialize one-click payment. Before this, you need to call payment_init(..., pay_operation='oneclickPayment')
+        It will create payment template for you. Use pay_id returned from payment_init as orig_pay_id in this method.
+        """
 
         payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
@@ -194,6 +198,11 @@ class CsobClient(object):
         return self.validate_response(r)
 
     def oneclick_start(self, pay_id):
+        """
+        Start one-click payment. After 2 - 3 seconds it is recommended to call payment_status().
+
+        :param pay_id: use pay_id returned by oneclick_init()
+        """
 
         payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
