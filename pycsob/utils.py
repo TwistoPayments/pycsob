@@ -17,6 +17,10 @@ else:
     PY2 = False
 
 
+class CsobVerifyError(Exception):
+    pass
+
+
 def sign(payload, keyfile):
     msg = mk_msg_for_sign(payload)
     key = RSA.importKey(open(keyfile).read())
@@ -69,35 +73,33 @@ def dttm(format_='%Y%m%d%H%M%S'):
     return datetime.datetime.now().strftime(format_)
 
 
-class Response(object):
-    keys = 'payId', 'customerId', 'dttm', 'resultCode', 'resultMessage', 'paymentStatus', 'authCode'
-    data = None
-    error = None
+def validate_response(response, key):
+    response.raise_for_status()
 
-    def __init__(self, response):
-        status = response.status_code
-        if status == 200:
-            self.data = response.json()
-        else:
-            self.error = {status: conf.HTTP_STATUSES.get(status, 'Unknown Status')}
+    data = response.json()
+    signature = data.pop('signature')
+    payload = OrderedDict()
 
-    @property
-    def payload(self):
-        o = OrderedDict()
-        for k in self.keys:
-            if k in self.data:
-                o[k] = self.data[k]
-        return o
+    for k in conf.RESPONSE_KEYS:
+        if k in data:
+            payload[k] = data[k]
 
-    def is_valid(self, key):
-        if self.error:
-            return False
+    if not verify(payload, signature, key):
+        raise CsobVerifyError('Cannot verify response')
 
-        verified = verify(
-            payload=self.payload,
-            signature=self.data['signature'],
-            pubkeyfile=key
-        )
-        if not verified:
-            self.error = 'Cannot verify response, bad signature'
-        return verified
+    # extensions
+    if 'extensions' in data:
+        response.extensions = []
+        maskclnrp_keys = 'extension', 'dttm', 'maskedCln', 'expiration', 'longMaskedCln'
+        for one in data['extensions']:
+            if one['extension'] == 'maskClnRP':
+                o = OrderedDict()
+                for k in maskclnrp_keys:
+                    if k in one:
+                        o[k] = one[k]
+                if verify(o, one['signature'], key):
+                    response.extensions.append(o)
+                else:
+                    raise CsobVerifyError('Cannot verify masked card extension response')
+    response.payload = payload
+    return response

@@ -9,10 +9,6 @@ from . import conf, utils
 log = logging.getLogger('pycsob')
 
 
-class CsobClientError(Exception):
-    pass
-
-
 class CsobClient(object):
 
     def __init__(self, merchant_id, base_url, private_key_file, csob_pub_key_file):
@@ -66,7 +62,7 @@ class CsobClient(object):
         """
 
         if len(description) > 255:
-            raise CsobClientError('Description length is over 255 chars')
+            raise ValueError('Description length is over 255 chars')
 
         # fill cart if not set
         if not cart:
@@ -96,7 +92,7 @@ class CsobClient(object):
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/init')
         r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def get_payment_process_url(self, pay_id):
         """
@@ -117,11 +113,11 @@ class CsobClient(object):
         :return: verified data or raise error
         """
         o = OrderedDict()
-        for k in utils.Response.keys:
+        for k in conf.RESPONSE_KEYS:
             if k in datadict:
                 o[k] = datadict[k]
         if not utils.verify(o, datadict['signature'], self.f_pubkey):
-            raise CsobClientError('Unverified gateway return data')
+            raise utils.CsobVerifyError('Unverified gateway return data')
         return o
 
     def payment_status(self, pay_id):
@@ -131,7 +127,7 @@ class CsobClient(object):
             payload=self.req_payload(pay_id=pay_id)
         )
         r = requests.get(url=url, headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def payment_reverse(self, pay_id):
         url = utils.mk_url(
@@ -140,7 +136,7 @@ class CsobClient(object):
         )
         payload = self.req_payload(pay_id)
         r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def payment_close(self, pay_id, total_amount=None):
         url = utils.mk_url(
@@ -149,7 +145,7 @@ class CsobClient(object):
         )
         payload = self.req_payload(pay_id, totalAmount=total_amount)
         r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def payment_refund(self, pay_id, amount=None):
         url = utils.mk_url(
@@ -159,7 +155,7 @@ class CsobClient(object):
 
         payload = self.req_payload(pay_id, amount=amount)
         r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def customer_info(self, customer_id):
         """
@@ -176,7 +172,7 @@ class CsobClient(object):
             ))
         )
         r = requests.get(url, headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
         """
@@ -195,7 +191,7 @@ class CsobClient(object):
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/init')
         r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def oneclick_start(self, pay_id):
         """
@@ -211,7 +207,7 @@ class CsobClient(object):
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/start')
         r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
-        return self.validate_response(r)
+        return utils.validate_response(r, self.f_pubkey)
 
     def echo(self, method='POST'):
         """
@@ -238,14 +234,7 @@ class CsobClient(object):
             )
             r = requests.get(url, headers=conf.HEADERS)
 
-        return self.validate_response(r)
-
-    def validate_response(self, r):
-        response = utils.Response(r)
-        if not response.is_valid(self.f_pubkey):
-            raise CsobClientError('Invalid response: %s' % response.error)
-
-        return response.payload
+        return utils.validate_response(r, self.f_pubkey)
 
     def req_payload(self, pay_id, **kwargs):
         pairs = (

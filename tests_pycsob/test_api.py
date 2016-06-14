@@ -1,7 +1,9 @@
 # coding: utf-8
 import os
 import json
+import pytest
 from collections import OrderedDict
+from requests.exceptions import HTTPError
 from unittest import TestCase
 from urllib3_mock import Responses
 
@@ -31,7 +33,7 @@ class CsobClientTests(TestCase):
         ))
         responses.add(responses.POST, '/echo/', body=json.dumps(resp_payload),
                       status=200, content_type='application/json')
-        out = self.c.echo()
+        out = self.c.echo().payload
         assert out['dttm'] == resp_payload['dttm']
         assert out['resultCode'] == conf.RETURN_CODE_OK
 
@@ -52,7 +54,7 @@ class CsobClientTests(TestCase):
         url = utils.mk_url('/', 'echo/', payload)
         responses.add(responses.GET, url, body=json.dumps(resp_payload),
                       status=200, content_type='application/json')
-        out = self.c.echo(method='GET')
+        out = self.c.echo(method='GET').payload
         assert out['dttm'] == resp_payload['dttm']
         assert out['resultCode'] == conf.RETURN_CODE_OK
 
@@ -79,7 +81,7 @@ class CsobClientTests(TestCase):
         ))
         responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
         out = self.c.payment_init(order_no=666, total_amount='66600', return_url='http://example.com',
-                                  description='Nějaký popis')
+                                  description='Nějaký popis').payload
 
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
         assert out['resultCode'] == conf.RETURN_CODE_OK
@@ -109,8 +111,47 @@ class CsobClientTests(TestCase):
         resp_url = '/payment/init'
         responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
         out = self.c.payment_init(order_no=666, total_amount='2200000', return_url='http://',
-                                  description='X', cart=cart)
+                                  description='X', cart=cart).payload
 
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_REJECTED
         assert out['resultCode'] == conf.RETURN_CODE_PARAM_INVALID
 
+    @responses.activate
+    def test_payment_status_extension(self):
+
+        payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('merchantId', self.c.merchant_id),
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+        ))
+
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_PARAM_INVALID),
+            ('resultMessage', "OK"),
+            ('paymentStatus', conf.PAYMENT_STATUS_WAITING),
+            ('authCode', 'F7A23E')
+        ))
+        ext_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('extension', 'maskClnRP'),
+            ('dttm', utils.dttm()),
+            ('maskedCln', '****1234'),
+            ('expiration', '12/20'),
+            ('longMaskedCln', 'PPPPPP****XXXX')
+        ))
+        resp_payload['extensions'] = [ext_payload]
+        resp_url = utils.mk_url('/', 'payment/status/', payload)
+        responses.add(responses.GET, resp_url, body=json.dumps(resp_payload), status=200)
+        out = self.c.payment_status(PAY_ID)
+
+        assert hasattr(out, 'extensions')
+        assert len(out.extensions) == 1
+        assert out.extensions[0]['longMaskedCln'] == ext_payload['longMaskedCln']
+
+    @responses.activate
+    def test_http_status_raised(self):
+        responses.add(responses.POST, '/echo/', status=500)
+        with pytest.raises(HTTPError) as excinfo:
+            self.c.echo(method='POST')
+        assert '500 Server Error' in str(excinfo.value)

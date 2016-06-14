@@ -1,8 +1,6 @@
 pycsob
 ======
 
-Python client for ČSOB payment gateway
-
 Latest CircleCI build:
 
     .. image:: https://circleci.com/gh/whit/pycsob.svg?style=svg
@@ -38,7 +36,9 @@ Usage:
     # note: total_amount = 20000.00
     r = c.payment_init(1, 2000000, 'https://return.url/', 'Some note', customer_id='a@a.aa')
 
-    assert r['resultCode'] == conf.RETURN_CODE_OK
+    # r is standard requests's response enriched by some properties like payload, extensions
+    # it raises errors on bad HTTP status or if it's not trusted (bad signature verification)
+    assert r.payload['resultCode'] == conf.RETURN_CODE_OK
     c.payment_status(r['payId'])
     c.payment_close(r['payId'])
     # ...
