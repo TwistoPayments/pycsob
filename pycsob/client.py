@@ -31,7 +31,7 @@ class CsobClient(object):
 
     def payment_init(self, order_no, total_amount, return_url, description, cart=None,
                      customer_id=None, currency='CZK', language='CZ', close_payment=True,
-                     return_method='POST'):
+                     return_method='POST', pay_operation='payment'):
         """
         Initialize transaction, sum of cart items must be equal to total amount
         If cart is None, we create it for you from total_amount and description values.
@@ -61,6 +61,7 @@ class CsobClient(object):
         :param currency: supported currencies: 'CZK', 'EUR', 'USD', 'GBP'
         :param close_payment:
         :param return_method: method which be used for return to shop from gateway POST (default) or GET
+        :param pay_operation: `payment` or `oneclickPayment`
         :return: response from gateway as OrderedDict
         """
 
@@ -81,7 +82,7 @@ class CsobClient(object):
             ('merchantId', self.merchant_id),
             ('orderNo', str(order_no)),
             ('dttm', utils.dttm()),
-            ('payOperation', 'payment'),
+            ('payOperation', pay_operation),
             ('payMethod', 'card'),
             ('totalAmount', total_amount),
             ('currency', currency),
@@ -175,6 +176,32 @@ class CsobClient(object):
             ))
         )
         r = requests.get(url, headers=conf.HEADERS)
+        return self.validate_response(r)
+
+    def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
+
+        payload = utils.mk_payload(self.f_key, pairs=(
+            ('merchantId', self.merchant_id),
+            ('origPayId', orig_pay_id),
+            ('orderNo', str(order_no)),
+            ('dttm', utils.dttm()),
+            ('totalAmount', total_amount),
+            ('currency', currency),
+            ('description', description),
+        ))
+        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/init')
+        r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
+        return self.validate_response(r)
+
+    def oneclick_start(self, pay_id):
+
+        payload = utils.mk_payload(self.f_key, pairs=(
+            ('merchantId', self.merchant_id),
+            ('payId', pay_id),
+            ('dttm', utils.dttm()),
+        ))
+        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/start')
+        r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
         return self.validate_response(r)
 
     def echo(self, method='POST'):
