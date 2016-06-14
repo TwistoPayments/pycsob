@@ -5,3 +5,5 @@
 /.coverage
 /.eggs/
 /.tox/
+coverage.xml
+junit-*.xml
