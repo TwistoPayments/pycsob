@@ -1,10 +1,11 @@
 pycsob
 ======
 
-Latest CircleCI build:
-
 .. image:: https://circleci.com/gh/whit/pycsob.svg?style=svg
    :target: https://circleci.com/gh/whit/pycsob
+
+.. image:: https://badge.fury.io/py/pycsob.svg
+    :target: https://badge.fury.io/py/pycsob
 
 Install:
 --------
