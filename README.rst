@@ -2,6 +2,7 @@ pycsob
 ======
 
 Latest CircleCI build:
+
 .. image:: https://circleci.com/gh/whit/pycsob.svg?style=svg
    :target: https://circleci.com/gh/whit/pycsob
 
