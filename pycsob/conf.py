@@ -37,6 +37,34 @@ RETURN_CODE_NO_SAVED_CARDS = 810
 RETURN_CODE_FOUND_SAVED_CARDS = 820
 RETURN_CODE_INTERNAL_ERROR = 900
 
+RESULT_STATUSES = {
+    RETURN_CODE_OK: 'OK',
+    RETURN_CODE_PARAM_MISSING: 'Missing parameter',
+    RETURN_CODE_PARAM_INVALID: 'Invalid parameter',
+    RETURN_CODE_MERCHANT_BLOCKED: 'Merchant blocked',
+    RETURN_CODE_SESSION_EXPIRED: 'Session expired',
+    RETURN_CODE_PAYMENT_NOT_FOUND: 'Payment not found',
+    RETURN_CODE_PAYMENT_NOT_IN_VALID_STATE: 'Payment not in valid state',
+    RETURN_CODE_OPERATION_NOT_ALLOWED: 'Operation not allowed',
+    RETURN_CODE_CUSTOMER_NOT_FOUND: 'Customer not found',
+    RETURN_CODE_NO_SAVED_CARDS: 'Customer found, no saved card(s)',
+    RETURN_CODE_FOUND_SAVED_CARDS: 'Customer found, found saved card(s)',
+    RETURN_CODE_INTERNAL_ERROR: 'Internal error',
+}
+
+PAYMENT_STATUSES = {
+    PAYMENT_STATUS_INIT: 'Initialized',
+    PAYMENT_STATUS_PROCESS: 'In process',
+    PAYMENT_STATUS_CANCELLED: 'Cancelled',
+    PAYMENT_STATUS_CONFIRMED: 'Confirmed',
+    PAYMENT_STATUS_REVERSED: 'Reversed',
+    PAYMENT_STATUS_REJECTED: 'Rejected',
+    PAYMENT_STATUS_WAITING: 'Waiting',
+    PAYMENT_STATUS_RECOGNIZED: 'Recognized',
+    PAYMENT_STATUS_RETURN_WAITING: 'Return waiting',
+    PAYMENT_STATUS_RETURNED: 'Returned'
+}
+
 HTTP_STATUSES = {
     200: 'OK',
     400: 'Bad Request',
