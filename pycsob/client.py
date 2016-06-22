@@ -115,7 +115,7 @@ class CsobClient(object):
         o = OrderedDict()
         for k in conf.RESPONSE_KEYS:
             if k in datadict:
-                o[k] = datadict[k]
+                o[k] = int(datadict[k]) if k in ('resultCode', 'paymentStatus') else datadict[k]
         if not utils.verify(o, datadict['signature'], self.f_pubkey):
             raise utils.CsobVerifyError('Unverified gateway return data')
         return o

@@ -1,5 +1,6 @@
 import sys
 import datetime
+import re
 from base64 import b64encode, b64decode
 from collections import OrderedDict
 from Crypto.Hash import SHA
@@ -103,3 +104,19 @@ def validate_response(response, key):
                     raise CsobVerifyError('Cannot verify masked card extension response')
     response.payload = payload
     return response
+
+
+PROVIDERS = (
+    (conf.CARD_PROVIDER_VISA, re.compile(r'^4\d{5}$')),
+    (conf.CARD_PROVIDER_AMEX, re.compile(r'^3[47]\d{4}$')),
+    (conf.CARD_PROVIDER_DINERS, re.compile(r'^3(?:0[0-5]|[68][0-9])[0-9]{4}$')),
+    (conf.CARD_PROVIDER_JCB, re.compile(r'^(?:2131|1800|35[0-9]{2})[0-9]{2}$')),
+    (conf.CARD_PROVIDER_MC, re.compile(r'^5[1-5][0-9]{4}|222[1-9][0-9]{2}|22[3-9][0-9]{4}|2[3-6][0-9]{5}|27[01][0-9]{4}|2720[0-9]{2}$')),
+)
+
+
+def get_card_provider(long_masked_number):
+    for provider_id, rx in PROVIDERS:
+        if rx.match(long_masked_number[:6]):
+            return provider_id, conf.CARD_PROVIDERS[provider_id]
+    return None, None

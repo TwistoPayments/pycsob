@@ -63,5 +63,5 @@ setup(
     setup_requires=setup_requires,
     install_requires=install_requires,
     tests_require=tests_require,
-    cmdclass={'test': PyTest},
+    cmdclass={'test': PyTest}
 )

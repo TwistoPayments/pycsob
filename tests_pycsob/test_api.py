@@ -155,3 +155,18 @@ class CsobClientTests(TestCase):
         with pytest.raises(HTTPError) as excinfo:
             self.c.echo(method='POST')
         assert '500 Server Error' in str(excinfo.value)
+
+    def test_gateway_return_retype(self):
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('resultCode', str(conf.RETURN_CODE_PARAM_INVALID)),
+            ('paymentStatus', str(conf.PAYMENT_STATUS_WAITING)),
+            ('authCode', 'F7A23E')
+        ))
+        r = self.c.gateway_return(dict(resp_payload))
+        assert type(r['paymentStatus']) == int
+        assert type(r['resultCode']) == int
+
+    def test_get_card_provider(self):
+        fn = utils.get_card_provider
+
+        assert fn('423451****111')[0] == conf.CARD_PROVIDER_VISA
