@@ -27,7 +27,8 @@ class CsobClient(object):
 
     def payment_init(self, order_no, total_amount, return_url, description, cart=None,
                      customer_id=None, currency='CZK', language='CZ', close_payment=True,
-                     return_method='POST', pay_operation='payment'):
+                     return_method='POST', pay_operation='payment', ttl_sec=600,
+                     logo_version=None, color_scheme_version=None):
         """
         Initialize transaction, sum of cart items must be equal to total amount
         If cart is None, we create it for you from total_amount and description values.
@@ -89,6 +90,9 @@ class CsobClient(object):
             ('description', description),
             ('customerId', customer_id),
             ('language', language),
+            ('ttlSec', ttl_sec),
+            ('logoVersion', logo_version),
+            ('colorSchemeVersion', color_scheme_version),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/init')
         r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
