@@ -1,0 +1,9 @@
+/*.egg-info/
+/build/
+/dist/
+/.cache/
+/.coverage
+/.eggs/
+/.tox/
+coverage.xml
+junit-*.xml
