@@ -1,8 +1,8 @@
 pycsob
 ======
 
-.. image:: https://circleci.com/gh/whit/pycsob.svg?style=svg
-   :target: https://circleci.com/gh/whit/pycsob
+.. image:: https://circleci.com/gh/TwistoPayments/pycsob.svg?style=svg
+   :target: https://circleci.com/gh/TwistoPayments/pycsob
 
 .. image:: https://badge.fury.io/py/pycsob.svg
     :target: https://badge.fury.io/py/pycsob
@@ -65,7 +65,7 @@ You can check payment status.
     #[Out]#              ('paymentStatus', 7),
     #[Out]#              ('authCode', '042760')])
 
-You can also use one-click payment methods. For this ypou need
+You can also use one-click payment methods. For this you need
 to call ``c.payment_init(pay_operation='oneclickPayment')``. After this transaction confirmed
 you can use obtained ``payId`` as template for one-click payment.
 
