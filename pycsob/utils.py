@@ -88,9 +88,11 @@ def validate_response(response, key):
     if not verify(payload, signature, key):
         raise CsobVerifyError('Cannot verify response')
 
+    response.extensions = []
+    response.payload = payload
+
     # extensions
     if 'extensions' in data:
-        response.extensions = []
         maskclnrp_keys = 'extension', 'dttm', 'maskedCln', 'expiration', 'longMaskedCln'
         for one in data['extensions']:
             if one['extension'] == 'maskClnRP':
@@ -102,7 +104,7 @@ def validate_response(response, key):
                     response.extensions.append(o)
                 else:
                     raise CsobVerifyError('Cannot verify masked card extension response')
-    response.payload = payload
+
     return response
 
 

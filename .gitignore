@@ -2,6 +2,7 @@
 /build/
 /dist/
 /.cache/
+/.idea
 /.coverage
 /.eggs/
 /.tox/

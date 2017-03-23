@@ -41,8 +41,8 @@ setup(
     version=pycsob.__versionstr__,
     description='Python client for ČSOB Payment Gateway',
     long_description=long_description,
-    author='Vitek Pliska',
-    author_email='vitek@creatiweb.cz',
+    author='Twisto',
+    author_email='devs@twisto.cz',
     license='MIT',
     url='https://github.com/TwistoPayments/pycsob',
 
