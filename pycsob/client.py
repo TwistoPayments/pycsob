@@ -2,6 +2,7 @@
 import json
 import logging
 import requests
+import requests.adapters
 from collections import OrderedDict
 
 from . import conf, utils
@@ -9,8 +10,17 @@ from . import conf, utils
 log = logging.getLogger('pycsob')
 
 
-class CsobClient(object):
+class HTTPAdapter(requests.adapters.HTTPAdapter):
+    """
+    HTTP adapter with default timeout
+    """
 
+    def send(self, request, **kwargs):
+        kwargs.setdefault('timeout', conf.HTTP_TIMEOUT)
+        return super().send(request, **kwargs)
+
+
+class CsobClient(object):
     def __init__(self, merchant_id, base_url, private_key_file, csob_pub_key_file):
         """
         Initialize Client
@@ -24,6 +34,13 @@ class CsobClient(object):
         self.base_url = base_url
         self.f_key = private_key_file
         self.f_pubkey = csob_pub_key_file
+
+        session = requests.Session()
+        session.headers = conf.HEADERS
+        session.mount('https://', HTTPAdapter())
+        session.mount('http://', HTTPAdapter())
+
+        self._client = session
 
     def payment_init(self, order_no, total_amount, return_url, description, cart=None,
                      customer_id=None, currency='CZK', language='CZ', close_payment=True,
@@ -95,7 +112,7 @@ class CsobClient(object):
             ('colorSchemeVersion', color_scheme_version),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/init')
-        r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.post(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def get_payment_process_url(self, pay_id):
@@ -130,7 +147,7 @@ class CsobClient(object):
             endpoint_url='payment/status/',
             payload=self.req_payload(pay_id=pay_id)
         )
-        r = requests.get(url=url, headers=conf.HEADERS)
+        r = self._client.get(url=url)
         return utils.validate_response(r, self.f_pubkey)
 
     def payment_reverse(self, pay_id):
@@ -139,7 +156,7 @@ class CsobClient(object):
             endpoint_url='payment/reverse/'
         )
         payload = self.req_payload(pay_id)
-        r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.put(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def payment_close(self, pay_id, total_amount=None):
@@ -148,7 +165,7 @@ class CsobClient(object):
             endpoint_url='payment/close/'
         )
         payload = self.req_payload(pay_id, totalAmount=total_amount)
-        r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.put(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def payment_refund(self, pay_id, amount=None):
@@ -158,7 +175,7 @@ class CsobClient(object):
         )
 
         payload = self.req_payload(pay_id, amount=amount)
-        r = requests.put(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.put(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def customer_info(self, customer_id):
@@ -175,7 +192,7 @@ class CsobClient(object):
                 ('dttm', utils.dttm())
             ))
         )
-        r = requests.get(url, headers=conf.HEADERS)
+        r = self._client.get(url)
         return utils.validate_response(r, self.f_pubkey)
 
     def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
@@ -194,7 +211,7 @@ class CsobClient(object):
             ('description', description),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/init')
-        r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.post(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def oneclick_start(self, pay_id):
@@ -210,7 +227,7 @@ class CsobClient(object):
             ('dttm', utils.dttm()),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/start')
-        r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
+        r = self._client.post(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 
     def echo(self, method='POST'):
@@ -229,14 +246,14 @@ class CsobClient(object):
                 base_url=self.base_url,
                 endpoint_url='echo/'
             )
-            r = requests.post(url, data=json.dumps(payload), headers=conf.HEADERS)
+            r = self._client.post(url, data=json.dumps(payload))
         else:
             url = utils.mk_url(
                 base_url=self.base_url,
                 endpoint_url='echo/',
                 payload=payload
             )
-            r = requests.get(url, headers=conf.HEADERS)
+            r = self._client.get(url)
 
         return utils.validate_response(r, self.f_pubkey)
 

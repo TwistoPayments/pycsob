@@ -16,6 +16,7 @@ def parse_reqs(f='requirements.pip'):
                 ret.append(l)
     return ret
 
+
 setup_requires = ['setuptools']
 install_requires, tests_require = parse_reqs(), parse_reqs('requirements-test.pip')
 
@@ -35,6 +36,7 @@ class PyTest(test):
         import pytest
         errno = pytest.main(self.test_args)
         sys.exit(errno)
+
 
 setup(
     name='pycsob',

@@ -75,6 +75,8 @@ HTTP_STATUSES = {
     503: 'Service Unavailable'
 }
 
+HTTP_TIMEOUT = (3.05, 12)  # http://docs.python-requests.org/en/master/user/advanced/#timeouts
+
 # CARD PROVIDERS
 CARD_PROVIDER_VISA = 4
 CARD_PROVIDER_MC = 5
