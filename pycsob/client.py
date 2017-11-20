@@ -17,7 +17,7 @@ class HTTPAdapter(requests.adapters.HTTPAdapter):
 
     def send(self, request, **kwargs):
         kwargs.setdefault('timeout', conf.HTTP_TIMEOUT)
-        return super().send(request, **kwargs)
+        return super(HTTPAdapter, self).send(request, **kwargs)
 
 
 class CsobClient(object):
