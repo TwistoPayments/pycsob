@@ -21,6 +21,7 @@ class HTTPAdapter(requests.adapters.HTTPAdapter):
 
 
 class CsobClient(object):
+
     def __init__(self, merchant_id, base_url, private_key_file, csob_pub_key_file):
         """
         Initialize Client
@@ -267,3 +268,15 @@ class CsobClient(object):
             if v not in conf.EMPTY_VALUES:
                 pairs += ((k, v),)
         return utils.mk_payload(keyfile=self.f_key, pairs=pairs)
+
+    def button(self, pay_id, brand):
+        "Get url to the button."
+        payload = utils.mk_payload(self.f_key, pairs=(
+            ('merchantId', self.merchant_id),
+            ('payId', pay_id),
+            ('brand', brand),
+            ('dttm', utils.dttm()),
+        ))
+        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/button/')
+        r = self._client.post(url, data=json.dumps(payload))
+        return utils.validate_response(r, self.f_pubkey)
