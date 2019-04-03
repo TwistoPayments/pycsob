@@ -103,6 +103,10 @@ class CsobClient(object):
                 ])
             ]
 
+        # Fix invalid language code type (country code).
+        lang_code = language.upper()[:2]
+        language = {'CS': 'CZ'}.get(lang_code, lang_code)
+
         payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
             ('orderNo', str(order_no)),
