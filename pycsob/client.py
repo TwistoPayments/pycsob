@@ -1,5 +1,5 @@
 # coding: utf-8
-from base64 import b64encode
+from base64 import b64encode, b64decode
 import json
 import logging
 import requests
@@ -89,7 +89,7 @@ class CsobClient(object):
             raise ValueError('Description length is over 255 chars')
 
         if merchant_data:
-            merchant_data = b64encode(merchant_data)
+            merchant_data = b64encode(merchant_data).decode("UTF-8")
             if len(merchant_data) > 255:
                 raise ValueError('Merchant data length encoded to BASE64 is over 255 chars')
 
@@ -151,6 +151,8 @@ class CsobClient(object):
                 o[k] = int(datadict[k]) if k in ('resultCode', 'paymentStatus') else datadict[k]
         if not utils.verify(o, datadict['signature'], self.f_pubkey):
             raise utils.CsobVerifyError('Unverified gateway return data')
+        if 'merchantData' in o:
+            o['merchantData'] = b64decode(o['merchantData'])
         return o
 
     def payment_status(self, pay_id):
