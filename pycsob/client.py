@@ -1,4 +1,5 @@
 # coding: utf-8
+from base64 import b64encode
 import json
 import logging
 import requests
@@ -46,7 +47,7 @@ class CsobClient(object):
     def payment_init(self, order_no, total_amount, return_url, description, cart=None,
                      customer_id=None, currency='CZK', language='CZ', close_payment=True,
                      return_method='POST', pay_operation='payment', ttl_sec=600,
-                     logo_version=None, color_scheme_version=None):
+                     logo_version=None, color_scheme_version=None, merchant_data=None):
         """
         Initialize transaction, sum of cart items must be equal to total amount
         If cart is None, we create it for you from total_amount and description values.
@@ -77,11 +78,20 @@ class CsobClient(object):
         :param close_payment:
         :param return_method: method which be used for return to shop from gateway POST (default) or GET
         :param pay_operation: `payment` or `oneclickPayment`
+        :param ttl_sec: number of seconds to the timeout
+        :param logo_version: Logo version number
+        :param color_scheme_version: Color scheme version number
+        :param merchant_data: bytearray of merchant data
         :return: response from gateway as OrderedDict
         """
 
         if len(description) > 255:
             raise ValueError('Description length is over 255 chars')
+
+        if merchant_data:
+            merchant_data = b64encode(merchant_data)
+            if len(merchant_data) > 255:
+                raise ValueError('Merchant data length encoded to BASE64 is over 255 chars')
 
         # fill cart if not set
         if not cart:
@@ -106,6 +116,7 @@ class CsobClient(object):
             ('returnMethod', return_method),
             ('cart', cart),
             ('description', description),
+            ('merchantData', merchant_data),
             ('customerId', customer_id),
             ('language', language),
             ('ttlSec', ttl_sec),
