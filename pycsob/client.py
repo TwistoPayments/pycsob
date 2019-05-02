@@ -155,6 +155,8 @@ class CsobClient(object):
                 o[k] = int(datadict[k]) if k in ('resultCode', 'paymentStatus') else datadict[k]
         if not utils.verify(o, datadict['signature'], self.f_pubkey):
             raise utils.CsobVerifyError('Unverified gateway return data')
+        if "dttm" in o:
+            o["dttime"] = utils.dttm_decode(o["dttm"])
         if 'merchantData' in o:
             o['merchantData'] = b64decode(o['merchantData'])
         return o

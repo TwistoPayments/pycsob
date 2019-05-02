@@ -1,8 +1,10 @@
 # coding: utf-8
 import os
+import datetime
 import json
 import pytest
 from collections import OrderedDict
+from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from unittest import TestCase
 from urllib3_mock import Responses
@@ -16,7 +18,11 @@ PAY_ID = '34ae55eb69e2cBF'
 responses = Responses(package='requests.packages.urllib3')
 
 
+@freeze_time("2019-05-02 16:14:26")
 class CsobClientTests(TestCase):
+
+    dttm = "20190502161426"
+    dttime = datetime.datetime(2019, 5, 2, 16, 14, 26)
 
     def setUp(self):
         self.c = CsobClient(merchant_id='MERCHANT',
@@ -34,11 +40,9 @@ class CsobClientTests(TestCase):
         responses.add(responses.POST, '/echo/', body=json.dumps(resp_payload),
                       status=200, content_type='application/json')
         out = self.c.echo().payload
-        assert out['dttm'] == resp_payload['dttm']
-        assert out['resultCode'] == conf.RETURN_CODE_OK
-
-        sig = resp_payload.pop('signature')
-        assert utils.verify(out, sig, KEY_PATH)
+        self.assertEqual(out['dttm'], self.dttm)
+        self.assertEqual(out['dttime'], self.dttime)
+        self.assertEqual(out['resultCode'], conf.RETURN_CODE_OK)
 
     @responses.activate
     def test_echo_get(self):
@@ -55,8 +59,9 @@ class CsobClientTests(TestCase):
         responses.add(responses.GET, url, body=json.dumps(resp_payload),
                       status=200, content_type='application/json')
         out = self.c.echo(method='GET').payload
-        assert out['dttm'] == resp_payload['dttm']
-        assert out['resultCode'] == conf.RETURN_CODE_OK
+        self.assertEqual(out['dttm'], self.dttm)
+        self.assertEqual(out['dttime'], self.dttime)
+        self.assertEqual(out['resultCode'], conf.RETURN_CODE_OK)
 
     def test_sign_message(self):
         msg = 'Příliš žluťoučký kůň úpěl ďábelské ódy.'
@@ -240,7 +245,7 @@ class CsobClientTests(TestCase):
         resp_url = '/payment/button/'
         resp_payload = utils.mk_payload(KEY_PATH, pairs=(
             ('payId', PAY_ID),
-            ('dttm', '20190405165139'),
+            ('dttm', utils.dttm()),
             ('resultCode', conf.RETURN_CODE_OK),
             ('resultMessage', 'OK'),
         ))
@@ -248,7 +253,11 @@ class CsobClientTests(TestCase):
         out = self.c.button(PAY_ID, 'csob').payload
         self.assertEqual(out, OrderedDict([
             ('payId', '34ae55eb69e2cBF'),
-            ('dttm', '20190405165139'),
+            ('dttm', self.dttm),
             ('resultCode', 0),
-            ('resultMessage', 'OK')
+            ('resultMessage', 'OK'),
+            ('dttime', self.dttime),
         ]))
+
+    def test_dttm_decode(self):
+        self.assertEqual(utils.dttm_decode("20190502161426"), self.dttime)
