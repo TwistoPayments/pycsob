@@ -1,8 +1,8 @@
 pycsob
 ======
 
-.. image:: https://circleci.com/gh/TwistoPayments/pycsob.svg?style=svg
-   :target: https://circleci.com/gh/TwistoPayments/pycsob
+.. image:: https://circleci.com/gh/zbohm/pycsob/tree/dttm.svg?style=svg
+   :target: https://circleci.com/gh/zbohm/pycsob/tree/dttm
 
 .. image:: https://badge.fury.io/py/pycsob.svg
     :target: https://badge.fury.io/py/pycsob
