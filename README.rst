@@ -7,6 +7,18 @@ pycsob
 .. image:: https://badge.fury.io/py/pycsob.svg
     :target: https://badge.fury.io/py/pycsob
 
+.. image:: https://img.shields.io/pypi/dm/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/status/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/pyversions/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/l/pycsob.svg
+	   :target: https://raw.githubusercontent.com/zbohm/pycsob/master/LICENSE
+
 Install:
 --------
 
