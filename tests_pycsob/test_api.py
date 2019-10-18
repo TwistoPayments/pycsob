@@ -7,6 +7,7 @@ from collections import OrderedDict
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
 from unittest import TestCase
+from unittest.mock import call, patch
 from urllib3_mock import Responses
 
 from pycsob import conf, utils
@@ -261,3 +262,44 @@ class CsobClientTests(TestCase):
 
     def test_dttm_decode(self):
         self.assertEqual(utils.dttm_decode("20190502161426"), self.dttime)
+
+    @responses.activate
+    def test_description_strip(self):
+        resp_url = '/payment/init'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+            ('paymentStatus', 1),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+
+        with patch('pycsob.utils.mk_payload', return_value=resp_payload) as mock_mk_payload:
+            self.c.payment_init(42, '100', 'http://example.com', 'Konference Internet a Technologie 19')
+
+        self.assertEqual(mock_mk_payload.mock_calls, [
+            call(KEY_PATH, pairs=(
+                ('merchantId', 'MERCHANT'),
+                ('orderNo', '42'),
+                ('dttm', '20190502161426'),
+                ('payOperation', 'payment'),
+                ('payMethod', 'card'),
+                ('totalAmount', '100'),
+                ('currency', 'CZK'),
+                ('closePayment', True),
+                ('returnUrl', 'http://example.com'),
+                ('returnMethod', 'POST'),
+                ('cart', [OrderedDict([
+                    ('name', 'Konference Internet'),
+                    ('quantity', 1),
+                    ('amount', '100')])]),
+                ('description', 'Konference Internet a Technologie 19'),
+                ('merchantData', None),
+                ('customerId', None),
+                ('language', 'CZ'),
+                ('ttlSec', 600),
+                ('logoVersion', None),
+                ('colorSchemeVersion', None),
+            ))
+        ])

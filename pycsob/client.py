@@ -97,7 +97,7 @@ class CsobClient(object):
         if not cart:
             cart = [
                 OrderedDict([
-                    ('name', description[:20]),
+                    ('name', description[:20].strip()),
                     ('quantity', 1),
                     ('amount', total_amount)
                 ])
