@@ -21,19 +21,19 @@ class HTTPAdapter(requests.adapters.HTTPAdapter):
 
 
 class CsobClient(object):
-    def __init__(self, merchant_id, base_url, private_key_file, csob_pub_key_file):
+    def __init__(self, merchant_id, base_url, private_key, csob_pub_key):
         """
         Initialize Client
 
         :param merchant_id: Your Merchant ID (you can find it in POSMerchant)
         :param base_url: Base API url development / production
-        :param private_key_file: Path to generated private key file
-        :param csob_pub_key_file: Path to CSOB public key
+        :param private_key: Path to generated private key file, or its contents
+        :param csob_pub_key: Path to CSOB public key file, or its contents
         """
         self.merchant_id = merchant_id
         self.base_url = base_url
-        self.f_key = private_key_file
-        self.f_pubkey = csob_pub_key_file
+        self.key = self._get_key(private_key)
+        self.pubkey = self._get_key(csob_pub_key)
 
         session = requests.Session()
         session.headers = conf.HEADERS
@@ -42,7 +42,13 @@ class CsobClient(object):
 
         self._client = session
 
-    def payment_init(self, order_no, total_amount, return_url, description, cart=None,
+    def _get_key(self, value):
+        try:
+            return open(value).read()
+        except FileNotFoundError:
+            return value
+
+    def payment_init(self, order_no, total_amount, return_url, description, merchant_data=None, cart=None,
                      customer_id=None, currency='CZK', language='CZ', close_payment=True,
                      return_method='POST', pay_operation='payment', ttl_sec=600,
                      logo_version=None, color_scheme_version=None):
@@ -92,7 +98,7 @@ class CsobClient(object):
                 ])
             ]
 
-        payload = utils.mk_payload(self.f_key, pairs=(
+        payload = utils.mk_payload(self.key, pairs=(
             ('merchantId', self.merchant_id),
             ('orderNo', str(order_no)),
             ('dttm', utils.dttm()),
@@ -105,6 +111,7 @@ class CsobClient(object):
             ('returnMethod', return_method),
             ('cart', cart),
             ('description', description),
+            ('merchantData', merchant_data),
             ('customerId', customer_id),
             ('language', language),
             ('ttlSec', ttl_sec),
@@ -113,7 +120,7 @@ class CsobClient(object):
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/init')
         r = self._client.post(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def get_payment_process_url(self, pay_id):
         """
@@ -137,7 +144,7 @@ class CsobClient(object):
         for k in conf.RESPONSE_KEYS:
             if k in datadict:
                 o[k] = int(datadict[k]) if k in ('resultCode', 'paymentStatus') else datadict[k]
-        if not utils.verify(o, datadict['signature'], self.f_pubkey):
+        if not utils.verify(o, datadict['signature'], self.pubkey):
             raise utils.CsobVerifyError('Unverified gateway return data')
         return o
 
@@ -148,7 +155,7 @@ class CsobClient(object):
             payload=self.req_payload(pay_id=pay_id)
         )
         r = self._client.get(url=url)
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def payment_reverse(self, pay_id):
         url = utils.mk_url(
@@ -157,7 +164,7 @@ class CsobClient(object):
         )
         payload = self.req_payload(pay_id)
         r = self._client.put(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def payment_close(self, pay_id, total_amount=None):
         url = utils.mk_url(
@@ -166,7 +173,7 @@ class CsobClient(object):
         )
         payload = self.req_payload(pay_id, totalAmount=total_amount)
         r = self._client.put(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def payment_refund(self, pay_id, amount=None):
         url = utils.mk_url(
@@ -176,7 +183,7 @@ class CsobClient(object):
 
         payload = self.req_payload(pay_id, amount=amount)
         r = self._client.put(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def customer_info(self, customer_id):
         """
@@ -186,14 +193,14 @@ class CsobClient(object):
         url = utils.mk_url(
             base_url=self.base_url,
             endpoint_url='customer/info/',
-            payload=utils.mk_payload(self.f_key, pairs=(
+            payload=utils.mk_payload(self.key, pairs=(
                 ('merchantId', self.merchant_id),
                 ('customerId', customer_id),
                 ('dttm', utils.dttm())
             ))
         )
         r = self._client.get(url)
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
         """
@@ -201,7 +208,7 @@ class CsobClient(object):
         It will create payment template for you. Use pay_id returned from payment_init as orig_pay_id in this method.
         """
 
-        payload = utils.mk_payload(self.f_key, pairs=(
+        payload = utils.mk_payload(self.key, pairs=(
             ('merchantId', self.merchant_id),
             ('origPayId', orig_pay_id),
             ('orderNo', str(order_no)),
@@ -212,7 +219,7 @@ class CsobClient(object):
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/init')
         r = self._client.post(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def oneclick_start(self, pay_id):
         """
@@ -221,14 +228,14 @@ class CsobClient(object):
         :param pay_id: use pay_id returned by oneclick_init()
         """
 
-        payload = utils.mk_payload(self.f_key, pairs=(
+        payload = utils.mk_payload(self.key, pairs=(
             ('merchantId', self.merchant_id),
             ('payId', pay_id),
             ('dttm', utils.dttm()),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/start')
         r = self._client.post(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def echo(self, method='POST'):
         """
@@ -237,7 +244,7 @@ class CsobClient(object):
         :param method: request method (GET/POST), default is POST
         :return: data from JSON response or raise error
         """
-        payload = utils.mk_payload(self.f_key, pairs=(
+        payload = utils.mk_payload(self.key, pairs=(
             ('merchantId', self.merchant_id),
             ('dttm', utils.dttm())
         ))
@@ -255,7 +262,7 @@ class CsobClient(object):
             )
             r = self._client.get(url)
 
-        return utils.validate_response(r, self.f_pubkey)
+        return utils.validate_response(r, self.pubkey)
 
     def req_payload(self, pay_id, **kwargs):
         pairs = (
@@ -266,4 +273,4 @@ class CsobClient(object):
         for k, v in kwargs.items():
             if v not in conf.EMPTY_VALUES:
                 pairs += ((k, v),)
-        return utils.mk_payload(keyfile=self.f_key, pairs=pairs)
+        return utils.mk_payload(key=self.key, pairs=pairs)
