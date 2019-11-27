@@ -22,17 +22,16 @@ class CsobVerifyError(Exception):
     pass
 
 
-def sign(payload, keyfile):
+def sign(payload, key):
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(keyfile).read())
     h = SHA.new(msg)
-    signer = PKCS1_v1_5.new(key)
+    signer = PKCS1_v1_5.new(RSA.importKey(key))
     return b64encode(signer.sign(h)).decode()
 
 
-def verify(payload, signature, pubkeyfile):
+def verify(payload, signature, pubkey):
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(pubkeyfile).read())
+    key = RSA.importKey(pubkey)
     h = SHA.new(msg)
     verifier = PKCS1_v1_5.new(key)
     return verifier.verify(h, b64decode(signature))
@@ -51,9 +50,9 @@ def mk_msg_for_sign(payload):
     return msg.encode('utf-8')
 
 
-def mk_payload(keyfile, pairs):
+def mk_payload(key, pairs):
     payload = OrderedDict([(k, v) for k, v in pairs if v not in conf.EMPTY_VALUES])
-    payload['signature'] = sign(payload, keyfile)
+    payload['signature'] = sign(payload, key)
     return payload
 
 

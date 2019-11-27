@@ -6,7 +6,9 @@ HEADERS = {
     'user-agent': 'py-csob/%s' % __versionstr__,
 }
 EMPTY_VALUES = ('', None, [], (), {})
-RESPONSE_KEYS = 'payId', 'customerId', 'dttm', 'resultCode', 'resultMessage', 'paymentStatus', 'authCode'
+RESPONSE_KEYS = (
+    'payId', 'customerId', 'dttm', 'resultCode', 'resultMessage', 'paymentStatus', 'authCode', 'merchantData'
+)
 
 # available languages and currencies
 LANGUAGES = 'CZ', 'EN', 'DE', 'SK', 'HU', 'IT', 'JP', 'PL', 'PT', 'RO', 'RU', 'SK', 'ES', 'TR', 'VN'
