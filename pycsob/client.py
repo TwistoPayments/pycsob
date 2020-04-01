@@ -1,11 +1,19 @@
 # coding: utf-8
 import json
 import logging
-import requests
 import requests.adapters
 from collections import OrderedDict
 
 from . import conf, utils
+
+
+try:
+    from security.transport.security_requests import SecuritySession as Session
+    SECURITY_SESSION = True
+except ImportError:
+    from requests import Session
+    SECURITY_SESSION = False
+
 
 log = logging.getLogger('pycsob')
 
@@ -35,10 +43,13 @@ class CsobClient(object):
         self.key = self._get_key(private_key)
         self.pubkey = self._get_key(csob_pub_key)
 
-        session = requests.Session()
+        session = Session()
         session.headers = conf.HEADERS
         session.mount('https://', HTTPAdapter())
         session.mount('http://', HTTPAdapter())
+
+        if SECURITY_SESSION:
+            session.slug = 'pycsob'
 
         self._client = session
 

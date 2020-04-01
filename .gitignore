@@ -8,3 +8,4 @@
 /.tox/
 coverage.xml
 junit-*.xml
+__pycache__

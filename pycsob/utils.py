@@ -1,5 +1,4 @@
 import sys
-import datetime
 import re
 from base64 import b64encode, b64decode
 from collections import OrderedDict
@@ -8,6 +7,13 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 
 from . import conf
+
+
+try:
+    from django.utils.timezone import localtime as now
+except ImportError:
+    from datetime import now
+
 
 if sys.version_info.major < 3:
     from urlparse import urljoin
@@ -70,7 +76,7 @@ def str_or_jsbool(v):
 
 
 def dttm(format_='%Y%m%d%H%M%S'):
-    return datetime.datetime.now().strftime(format_)
+    return now().strftime(format_)
 
 
 def validate_response(response, key):
