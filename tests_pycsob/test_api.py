@@ -166,7 +166,89 @@ class CsobClientTests(TestCase):
         assert type(r['paymentStatus']) == int
         assert type(r['resultCode']) == int
 
+    def test_gateway_return_merchant_data(self):
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('resultCode', str(conf.RETURN_CODE_PARAM_INVALID)),
+            ('paymentStatus', str(conf.PAYMENT_STATUS_WAITING)),
+            ('merchantData', 'Rm9v')
+        ))
+        r = self.c.gateway_return(dict(resp_payload))
+        self.assertEqual(r, OrderedDict([
+            ('resultCode', 110),
+            ('paymentStatus', 7),
+            ('merchantData', b'Foo')
+        ]))
+
     def test_get_card_provider(self):
         fn = utils.get_card_provider
 
         assert fn('423451****111')[0] == conf.CARD_PROVIDER_VISA
+
+    @responses.activate
+    def test_payment_init_with_merchant_data(self):
+        resp_url = '/payment/init'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+            ('paymentStatus', 1),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+        out = self.c.payment_init(order_no=666, total_amount='66600', return_url='http://example.com',
+                                  description='Fooo', merchant_data=b'Foo').payload
+
+        assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
+        assert out['resultCode'] == conf.RETURN_CODE_OK
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_payment_init_with_too_long_merchant_data(self):
+        resp_url = '/payment/init'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+            ('paymentStatus', 1),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+        with self.assertRaisesRegex(ValueError, 'Merchant data length encoded to BASE64 is over 255 chars'):
+            self.c.payment_init(order_no=666, total_amount='66600', return_url='http://example.com',
+                                description='Fooo', merchant_data=b'Foo' * 80).payload
+
+    @responses.activate
+    def test_payment_init_language_with_locale_cs(self):
+        resp_url = '/payment/init'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+            ('paymentStatus', 1),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+        out = self.c.payment_init(order_no=666, total_amount='66600', return_url='http://example.com',
+                                  description='Fooo', language='cs_CZ.utf8').payload
+
+        assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
+        assert out['resultCode'] == conf.RETURN_CODE_OK
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_button(self):
+        resp_url = '/payment/button/'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', '20190405165139'),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+        out = self.c.button(PAY_ID, 'csob').payload
+        self.assertEqual(out, OrderedDict([
+            ('payId', '34ae55eb69e2cBF'),
+            ('dttm', '20190405165139'),
+            ('resultCode', 0),
+            ('resultMessage', 'OK')
+        ]))
