@@ -74,6 +74,11 @@ def dttm(format_='%Y%m%d%H%M%S'):
     return datetime.datetime.now().strftime(format_)
 
 
+def dttm_decode(value):
+    """Decode dttm value '20190404091926' to the datetime object."""
+    return datetime.datetime.strptime(value, "%Y%m%d%H%M%S")
+
+
 def validate_response(response, key):
     response.raise_for_status()
 
@@ -87,6 +92,9 @@ def validate_response(response, key):
 
     if not verify(payload, signature, key):
         raise CsobVerifyError('Cannot verify response')
+
+    if "dttm" in payload:
+        payload["dttime"] = dttm_decode(payload["dttm"])
 
     response.extensions = []
     response.payload = payload

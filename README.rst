@@ -1,11 +1,23 @@
 pycsob
 ======
 
-.. image:: https://circleci.com/gh/TwistoPayments/pycsob.svg?style=svg
-   :target: https://circleci.com/gh/TwistoPayments/pycsob
+.. image:: https://circleci.com/gh/zbohm/pycsob/tree/dttm.svg?style=svg
+   :target: https://circleci.com/gh/zbohm/pycsob/tree/dttm
 
 .. image:: https://badge.fury.io/py/pycsob.svg
     :target: https://badge.fury.io/py/pycsob
+
+.. image:: https://img.shields.io/pypi/dm/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/status/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/pyversions/pycsob.svg
+	   :target: https://pypi.python.org/pypi/pycsob
+
+.. image:: https://img.shields.io/pypi/l/pycsob.svg
+	   :target: https://raw.githubusercontent.com/zbohm/pycsob/master/LICENSE
 
 Install:
 --------
@@ -21,13 +33,20 @@ Run tests:
 
     python setup.py test
 
+
+eAPI-v1.7 Wiki
+--------------
+
+https://github.com/csob/paymentgateway/wiki/eAPI-v1.7
+
+
 Basic usage:
 ------------
 
 .. code-block:: python
 
     from pycsob.client import CsobClient
-    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.6/',
+    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.7/',
                    '/path/to/your/private.key',
                    '/path/to/mips_iplatebnibrana.csob.cz.pub')
 
@@ -37,20 +56,22 @@ like ``payload`` or ``extensions``.
 .. code-block:: python
 
     r = c.payment_init(14, 1000000, 'http://twisto.dev/', 'Tesovaci nakup', customer_id='a@a.aa',
-                       return_method='GET', pay_operation='payment')
+                       return_method='GET', pay_operation='payment', merchant_data=[1, 2, 3])
     r.payload
     #[Out]# OrderedDict([('payId', 'b627c1e4e60fcBF'),
     #[Out]#              ('dttm', '20160615104254'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 1)])
+    #[Out]#              ('paymentStatus', 1)]),
+    #[Out]#              ('merchantData', [1, 2, 3])]),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 42, 54)),
 
 After payment init get URL to redirect to for payId obtained from previous step.
 
 .. code-block:: python
 
     c.get_payment_process_url('b627c1e4e60fcBF')
-    #[Out]# 'https://iapi.iplatebnibrana.csob.cz/api/v1.6/payment/process/MERCHANT_ID/b627c1e4e60fcBF/20160615104318/bla-bla-bla'
+    #[Out]# 'https://iapi.iplatebnibrana.csob.cz/api/v1.7/payment/process/MERCHANT_ID/b627c1e4e60fcBF/20160615104318/bla-bla-bla'
 
 After user have payment processed, browser redirects him to URL provided in ``payment_init()``.
 You can check payment status.
@@ -63,7 +84,8 @@ You can check payment status.
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
     #[Out]#              ('paymentStatus', 7),
-    #[Out]#              ('authCode', '042760')])
+    #[Out]#              ('authCode', '042760')]),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 1)),
 
 You can also use one-click payment methods. For this you need
 to call ``c.payment_init(pay_operation='oneclickPayment')``. After this transaction confirmed
@@ -77,7 +99,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('dttm', '20160615104532'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 1)])
+    #[Out]#              ('paymentStatus', 1)]),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 32)),
 
     r = c.oneclick_start('ff7d3e7c6c4fdBF')
     r.payload
@@ -85,7 +108,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('dttm', '20160615104619'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 2)])
+    #[Out]#              ('paymentStatus', 2)]),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 19)),
 
     r = c.payment_status('ff7d3e7c6c4fdBF')
     r.payload
@@ -94,7 +118,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
     #[Out]#              ('paymentStatus', 7),
-    #[Out]#              ('authCode', '168164')])
+    #[Out]#              ('authCode', '168164')]),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 43)),
 
 Of course you can use standard requests's methods on ``response`` object.
 
@@ -112,7 +137,7 @@ Of course you can use standard requests's methods on ``response`` object.
     r = c.payment_status('1e058ff1d0d5aBF')
 
     r.request.url
-    #[Out]#  'https://iapi.iplatebnibrana.csob.cz/api/v1.6/payment/status/M1E3CB2577/1e058ff1d0d5aBF/20160615111034/HQKDHz7DTHL0lCn6OrAv%2BKQjGEr8KtdF42czAGCngCG0gWbuYTfJfO%2B5rHwAEWCl1XKiClYngLBI7Lu2mCJG8AP2Od7%2BAa5VXWcIjs0mSAsP60irR7M4Xl1NsXPe4bEhXAvAJU4yz3oV2vZ68QRB9vE7mk6OaLQade48yEFmX83FJPDQ4RSBOUqD3JPrKMMZ%2BkNEz0%2FMh94X7Zx3DrtwUVdKEyuX8Zf2MYwqzQh7mNBW6EZKxt7yKwS%2B0108GalXoD1n7ctjbtcyrbFAFKKLDgPNf%2BMlLBt8cwSSQ6J2xigI3P9T32L5YUg25kKr%2B4Dy%2FnwOKDntDszbGXQZdIBnTQ%3D%3D'
+    #[Out]#  'https://iapi.iplatebnibrana.csob.cz/api/v1.7/payment/status/M1E3CB2577/1e058ff1d0d5aBF/20160615111034/HQKDHz7DTHL0lCn6OrAv%2BKQjGEr8KtdF42czAGCngCG0gWbuYTfJfO%2B5rHwAEWCl1XKiClYngLBI7Lu2mCJG8AP2Od7%2BAa5VXWcIjs0mSAsP60irR7M4Xl1NsXPe4bEhXAvAJU4yz3oV2vZ68QRB9vE7mk6OaLQade48yEFmX83FJPDQ4RSBOUqD3JPrKMMZ%2BkNEz0%2FMh94X7Zx3DrtwUVdKEyuX8Zf2MYwqzQh7mNBW6EZKxt7yKwS%2B0108GalXoD1n7ctjbtcyrbFAFKKLDgPNf%2BMlLBt8cwSSQ6J2xigI3P9T32L5YUg25kKr%2B4Dy%2FnwOKDntDszbGXQZdIBnTQ%3D%3D'
 
     r.status_code
     #[Out]# 200
