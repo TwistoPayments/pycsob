@@ -9,13 +9,7 @@ from Crypto.Signature import PKCS1_v1_5
 
 from . import conf
 
-if sys.version_info.major < 3:
-    from urlparse import urljoin
-    from urllib import quote_plus
-    PY2 = True
-else:
-    from urllib.parse import urljoin, quote_plus
-    PY2 = False
+from urllib.parse import urljoin, quote_plus
 
 
 class CsobVerifyError(Exception):
@@ -46,8 +40,6 @@ def mk_msg_for_sign(payload):
             cart_msg.extend(one.values())
         payload['cart'] = '|'.join(map(str_or_jsbool, cart_msg))
     msg = '|'.join(map(str_or_jsbool, payload.values()))
-    if PY2:
-        msg = unicode(bytes(msg), 'utf-8')
     return msg.encode('utf-8')
 
 
