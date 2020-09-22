@@ -1,9 +1,6 @@
 pycsob
 ======
 
-.. image:: https://circleci.com/gh/zbohm/pycsob/tree/dttm.svg?style=svg
-   :target: https://circleci.com/gh/zbohm/pycsob/tree/dttm
-
 .. image:: https://badge.fury.io/py/pycsob.svg
     :target: https://badge.fury.io/py/pycsob
 
@@ -17,7 +14,7 @@ pycsob
 	   :target: https://pypi.python.org/pypi/pycsob
 
 .. image:: https://img.shields.io/pypi/l/pycsob.svg
-	   :target: https://raw.githubusercontent.com/zbohm/pycsob/master/LICENSE
+	   :target: https://raw.githubusercontent.com/TwistoPayments/pycsob/master/LICENSE
 
 Install:
 --------
