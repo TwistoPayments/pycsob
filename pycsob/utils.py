@@ -41,7 +41,8 @@ class PyscobSession(requests.Session):
 
 def sign(payload, keyfile):
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(keyfile).read())
+    with open(keyfile, "rb") as f:
+        key = RSA.importKey(f.read())
     h = SHA.new(msg)
     signer = PKCS1_v1_5.new(key)
     return b64encode(signer.sign(h)).decode()
@@ -49,7 +50,8 @@ def sign(payload, keyfile):
 
 def verify(payload, signature, pubkeyfile):
     msg = mk_msg_for_sign(payload)
-    key = RSA.importKey(open(pubkeyfile).read())
+    with open(pubkeyfile, "rb") as f:
+        key = RSA.importKey(f.read())
     h = SHA.new(msg)
     verifier = PKCS1_v1_5.new(key)
     return verifier.verify(h, b64decode(signature))
