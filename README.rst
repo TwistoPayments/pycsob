@@ -31,10 +31,10 @@ Run tests:
     python setup.py test
 
 
-eAPI-v1.7 Wiki
+eAPI-v1.9 Wiki
 --------------
 
-https://github.com/csob/paymentgateway/wiki/eAPI-v1.7
+https://github.com/csob/paymentgateway/wiki/eAPI-v1.9
 
 
 Basic usage:
@@ -43,7 +43,7 @@ Basic usage:
 .. code-block:: python
 
     from pycsob.client import CsobClient
-    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.7/',
+    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.9/',
                    '/path/to/your/private.key',
                    '/path/to/mips_iplatebnibrana.csob.cz.pub')
 
