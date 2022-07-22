@@ -146,7 +146,7 @@ If you need to solve a problem, you can turn on request and response logging.
 In the settings, set the logger ``pycsob`` to the ``INFO`` level.
 If you set level ``DEBUG``, the response headers will also be displayed.
 
-site_cfg/settings.py:
+For Django set site_cfg/settings.py:
 
 .. code-block:: python
 
@@ -161,9 +161,23 @@ site_cfg/settings.py:
         }
     }
 
+Or in general for client logging to the console:
+
+.. code-block:: python
+
+    import logging
+    from pycsob.client import CsobClient
+
+    logger = logging.getLogger("pycsob")
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler())
+
+Then display a communication on the console:
+
 .. code-block:: python
 
     from pycsob.client import CsobClient
+
     KEY_PATH = 'tests_pycsob/fixtures/test.key'
     CSOB_PUB_KEY_PATH = 'yourpath/csob-public.key'
     client = CsobClient(merchant_id='MERCHANT', base_url='https://iapi.iplatebnibrana.csob.cz',
