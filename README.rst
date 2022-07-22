@@ -31,11 +31,12 @@ Run tests:
     python setup.py test
 
 
-eAPI-v1.7 Wiki
+eAPI-v1.9 Wiki
 --------------
 
-https://github.com/csob/paymentgateway/wiki/eAPI-v1.7
+https://github.com/csob/paymentgateway/wiki/eAPI-v1.9
 
+Caution! This module implements only `Basic Payment <https://github.com/csob/paymentgateway/wiki/Basic-Payment>`_ from API v1.9.
 
 Basic usage:
 ------------
@@ -43,7 +44,7 @@ Basic usage:
 .. code-block:: python
 
     from pycsob.client import CsobClient
-    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.7/',
+    c = CsobClient('MERCHANT_ID', 'https://iapi.iplatebnibrana.csob.cz/api/v1.9/',
                    '/path/to/your/private.key',
                    '/path/to/mips_iplatebnibrana.csob.cz.pub')
 
@@ -68,7 +69,7 @@ After payment init get URL to redirect to for payId obtained from previous step.
 .. code-block:: python
 
     c.get_payment_process_url('b627c1e4e60fcBF')
-    #[Out]# 'https://iapi.iplatebnibrana.csob.cz/api/v1.7/payment/process/MERCHANT_ID/b627c1e4e60fcBF/20160615104318/bla-bla-bla'
+    #[Out]# 'https://iapi.iplatebnibrana.csob.cz/api/v1.9/payment/process/MERCHANT_ID/b627c1e4e60fcBF/20160615104318/bla-bla-bla'
 
 After user have payment processed, browser redirects him to URL provided in ``payment_init()``.
 You can check payment status.
@@ -134,7 +135,7 @@ Of course you can use standard requests's methods on ``response`` object.
     r = c.payment_status('1e058ff1d0d5aBF')
 
     r.request.url
-    #[Out]#  'https://iapi.iplatebnibrana.csob.cz/api/v1.7/payment/status/M1E3CB2577/1e058ff1d0d5aBF/20160615111034/HQKDHz7DTHL0lCn6OrAv%2BKQjGEr8KtdF42czAGCngCG0gWbuYTfJfO%2B5rHwAEWCl1XKiClYngLBI7Lu2mCJG8AP2Od7%2BAa5VXWcIjs0mSAsP60irR7M4Xl1NsXPe4bEhXAvAJU4yz3oV2vZ68QRB9vE7mk6OaLQade48yEFmX83FJPDQ4RSBOUqD3JPrKMMZ%2BkNEz0%2FMh94X7Zx3DrtwUVdKEyuX8Zf2MYwqzQh7mNBW6EZKxt7yKwS%2B0108GalXoD1n7ctjbtcyrbFAFKKLDgPNf%2BMlLBt8cwSSQ6J2xigI3P9T32L5YUg25kKr%2B4Dy%2FnwOKDntDszbGXQZdIBnTQ%3D%3D'
+    #[Out]#  'https://iapi.iplatebnibrana.csob.cz/api/v1.9/payment/status/M1E3CB2577/1e058ff1d0d5aBF/20160615111034/HQKDHz7DTHL0lCn6OrAv%2BKQjGEr8KtdF42czAGCngCG0gWbuYTfJfO%2B5rHwAEWCl1XKiClYngLBI7Lu2mCJG8AP2Od7%2BAa5VXWcIjs0mSAsP60irR7M4Xl1NsXPe4bEhXAvAJU4yz3oV2vZ68QRB9vE7mk6OaLQade48yEFmX83FJPDQ4RSBOUqD3JPrKMMZ%2BkNEz0%2FMh94X7Zx3DrtwUVdKEyuX8Zf2MYwqzQh7mNBW6EZKxt7yKwS%2B0108GalXoD1n7ctjbtcyrbFAFKKLDgPNf%2BMlLBt8cwSSQ6J2xigI3P9T32L5YUg25kKr%2B4Dy%2FnwOKDntDszbGXQZdIBnTQ%3D%3D'
 
     r.status_code
     #[Out]# 200

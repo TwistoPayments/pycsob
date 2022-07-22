@@ -50,13 +50,13 @@ class CsobClientTests(TestCase):
         self.log_handler.check((
             'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/echo/; Data: {"merchantId": "MERCHANT", '
             '"dttm": "20190502161426", "signature": '
-            '"J7By3O+CBZeIsOFganhzQhXpB54ijT9xqD/lZSTsU6aty9B1DF7fSaQqYNaV8dBY7fT1C9oK06y7Zbf6jMHmZQ=="}; '
+            '"C9puGaxsYLEIazy04hVtCx5sMu8/eg6F2l17UfIUgCKFP4XvHIYA3xbIplbv1HbbQlGKgmw3FhD+FEYwq/E0bg=="}; '
             'Json: None; {}'), (
             'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '157'}"), (
+            "'py-csob/1.0.0', 'Content-Length': '157'}"), (
             'pycsob', 'INFO', 'Pycsob response: [200] {"dttm": "20190502161426", "resultCode": 0, '
             '"resultMessage": "OK", "signature": '
-            '"fHau/UrTzN6RtU3hLwRO7jkLHfxJMBjHOuJIQih6rDRfNWEnehpBmfbvCAjwpHiisr0Od5OhrZaFj/24ohbMTQ=="}'), (
+            '"hEyfa8OBR+eQIeqxBFB1SA9SHdhNkKBlM37IEizZ6z+2Bb4VSu1qldcpJEzARHOHJAgUOmwVXZC9v0MYcMg0TQ=="}'), (
             'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'application/json'}"
         ))
 
@@ -80,13 +80,13 @@ class CsobClientTests(TestCase):
         self.assertEqual(out['resultCode'], conf.RETURN_CODE_OK)
         self.log_handler.check((
             'pycsob', 'INFO', 'Pycsob request GET: '
-            'https://gw.cz/echo/MERCHANT/20190502161426/J7By3O%2BCBZeIsOFganhzQhXpB54ijT9xqD%2FlZSTsU6aty9B1DF7fSaQqYN'
-            'aV8dBY7fT1C9oK06y7Zbf6jMHmZQ%3D%3D; {}'), (
+            'https://gw.cz/echo/MERCHANT/20190502161426/C9puGaxsYLEIazy04hVtCx5sMu8%2Feg6F2l17UfIUgCKFP4XvHIYA3xbIplbv'
+            '1HbbQlGKgmw3FhD%2BFEYwq%2FE0bg%3D%3D; {}'), (
             'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0'}"), (
+            "'py-csob/1.0.0'}"), (
             'pycsob', 'INFO', 'Pycsob response: [200] {"dttm": "20190502161426", "resultCode": 0, '
             '"resultMessage": "OK", "signature": '
-            '"fHau/UrTzN6RtU3hLwRO7jkLHfxJMBjHOuJIQih6rDRfNWEnehpBmfbvCAjwpHiisr0Od5OhrZaFj/24ohbMTQ=="}'), (
+            '"hEyfa8OBR+eQIeqxBFB1SA9SHdhNkKBlM37IEizZ6z+2Bb4VSu1qldcpJEzARHOHJAgUOmwVXZC9v0MYcMg0TQ=="}'), (
             'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'application/json'}"
         ))
 
@@ -118,23 +118,22 @@ class CsobClientTests(TestCase):
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
         assert out['resultCode'] == conf.RETURN_CODE_OK
         assert len(responses.calls) == 1
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": '
             '"MERCHANT", "orderNo": "666", "dttm": "20190502161426", "payOperation": '
             '"payment", "payMethod": "card", "totalAmount": "66600", "currency": "CZK", '
             '"closePayment": true, "returnUrl": "http://example.com", "returnMethod": '
             '"POST", "cart": [{"name": "N\\u011bjak\\u00fd popis", "quantity": 1, '
-            '"amount": "66600"}], "description": "N\\u011bjak\\u00fd popis", "language": '
-            '"CZ", "ttlSec": 600, "signature": '
-            '"f233WiVk3qr2z4re0uVJUDwNDP0Q57cBHbXGpoMZGE3wUAlpYys1z03EIKIPj5A6nTPAANfNmqRQrormcLvf7A=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '501'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+            '"amount": "66600"}], "language": "cs", "ttlSec": 600, "signature": '
+            '"KMLqDJs+vSFqLaEG66i6MtkRZEL6U9HwqT3dPrYh237agzlkPnkXHHrCF2p+Sntzq/UWN03HfDhL5IHSsHvp6Q=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '460'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
             '"resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "signature": '
-            '"DtDHJocYFvaIJWGzGL8ETIHNNgaxnSMQHAcUm7m0sF4CQBYEYAMdbnAZUq1wOHwf9sxfOnAJyfCriYW4429u3g=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"Zd+PKspUEkrsEyxTmXAwrX3pgfS45Sg35dhMo5Oi0aoI8LoLs3dlyPS9vEXw80fxKyduAl5ws8D0Fu2mXLy9bA=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"),
+        )
 
     @responses.activate
     def test_payment_init_bad_cart(self):
@@ -164,24 +163,22 @@ class CsobClientTests(TestCase):
 
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_REJECTED
         assert out['resultCode'] == conf.RETURN_CODE_PARAM_INVALID
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": '
-            '"MERCHANT", "orderNo": "666", "dttm": "20190502161426", "payOperation": '
-            '"payment", "payMethod": "card", "totalAmount": "2200000", "currency": '
-            '"CZK", "closePayment": true, "returnUrl": "http://", "returnMethod": '
-            '"POST", "cart": [{"name": "Order in sho XYZ", "quantity": 5, "amount": '
-            '12345}, {"name": "Postage", "quantity": 1, "amount": 0}], "description": '
-            '"X", "language": "CZ", "ttlSec": 600, "signature": '
-            '"W3n6RcmXskgGeHXd7+VGcATu34xo2N2yOiINMwcAMLnx+D5aYwezg7UNY+MTZjc7jxnf8YOfVVhy8IWOVsIyJg=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '512'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
-            '"resultCode": 110, "resultMessage": "Invalid \'cart\' amounts, does not sum '
-            'to totalAmount", "paymentStatus": 6, "signature": '
-            '"aYw7oHwQh7B/wG5/sqKzw7nZWDXH6++dkp3kbPp1U8MWK1dLCsT/BSY1CvDVG234yMBu1LFprSk+g85VJXV26w=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": "MERCHANT", '
+            '"orderNo": "666", "dttm": "20190502161426", "payOperation": "payment", "payMethod": "card", '
+            '"totalAmount": "2200000", "currency": "CZK", "closePayment": true, '
+            '"returnUrl": "http://", "returnMethod": "POST", "cart": [{"name": "Order in sho XYZ", "quantity": 5, '
+            '"amount": 12345}, {"name": "Postage", "quantity": 1, "amount": 0}], "language": "cs", "ttlSec": 600, '
+            '"signature": "FcfTzD5ChQXyWAgBMZX+d/QOBbaGKXRusHwpiOaX+Aticygm1D8EzH+MtnMFq+Gp3dcQMTUg0bQKaCXfcQBeiA=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '492'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+            '"resultCode": 110, "resultMessage": "Invalid \'cart\' amounts, does not sum to totalAmount", '
+            '"paymentStatus": 6, "signature": '
+            '"GeQaDJ9nxY0f1g5T1j0JOgTY+fW/qvbtHRrXJ4Os6wWwjGOUmYy4sa8sHcOkffNfSJxmSZOoja/DFgC+fXnRbA=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     @responses.activate
     def test_payment_status_extension(self):
@@ -215,22 +212,20 @@ class CsobClientTests(TestCase):
         assert hasattr(out, 'extensions')
         assert len(out.extensions) == 1
         assert out.extensions[0]['longMaskedCln'] == ext_payload['longMaskedCln']
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request GET: '
-            'https://gw.cz/payment/status/MERCHANT/34ae55eb69e2cBF/20190502161426/'
-            'eAmtHAmMuCx4kQhW6s9fh3AhaRrxweMobxXamNHu8fg3oI78A2qndsHkGPkR1rq8GZ2BVfvgy0E4PiVxomgsSg%3D%3D; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
-            '"resultCode": 110, "resultMessage": "OK", "paymentStatus": 7, "authCode": '
-            '"F7A23E", "signature": '
-            '"bAtRVLOyNbXdt5YyVlBzCuEVEynmWMFz2bpH9hHYcFDq9StcrvEmyKlmlzyrZdEfWLASKm2WgYZ+nYdYdeyVcg==", '
-            '"extensions": [{"extension": "maskClnRP", "dttm": "20190502161426", '
-            '"maskedCln": "****1234", "expiration": "12/20", "longMaskedCln": '
-            '"PPPPPP****XXXX", "signature": '
-            '"mgVUxOqdUG1/RfD5A/2b3bNllmEidssFaJaH+c/pTVxTxil934gWddi1EgTsidbaQN0qgG+MwlRoQXjQIoUSWw=="}]}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request GET: https://gw.cz/payment/status/MERCHANT/34ae55eb69e2cBF/201905021614'
+            '26/hi0fi1sF0BL0SLWagZ9QJ4aLe7B3I0MN0rr0ocRb75ZP7wZunTLdrbFkALs1rUQYe1sJaKaoo%2B%2BoVs6grd%2F0WA%3D%3D;'
+            ' {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+            '"resultCode": 110, "resultMessage": "OK", "paymentStatus": 7, "authCode": "F7A23E", "signature": '
+            '"FFXfpqhazvXVKEMckHw+Y2tRDespTUp62NQ6kAwA4T0LNT6LDKj70d5XBJrrx3XNs92JGUT6wIJZR25MFmibFA==", '
+            '"extensions": [{"extension": "maskClnRP", "dttm": "20190502161426", "maskedCln": "****1234", '
+            '"expiration": "12/20", "longMaskedCln": "PPPPPP****XXXX", "signature": '
+            '"lDm8A+GvTbozSinFf1b3mqjjhXa7eZrOd6F9HQ0hE4eEozk7HdBWyNOPp/OieKofQFURDwzf8gJqQQT01xSD3w=="}]}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     @responses.activate
     def test_http_status_raised(self):
@@ -238,16 +233,16 @@ class CsobClientTests(TestCase):
         with pytest.raises(HTTPError) as excinfo:
             self.c.echo(method='POST')
         assert '500 Server Error' in str(excinfo.value)
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/echo/; Data: {"merchantId": "MERCHANT", '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/echo/; Data: {"merchantId": "MERCHANT", '
             '"dttm": "20190502161426", "signature": '
-            '"J7By3O+CBZeIsOFganhzQhXpB54ijT9xqD/lZSTsU6aty9B1DF7fSaQqYNaV8dBY7fT1C9oK06y7Zbf6jMHmZQ=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '157'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [500] '), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"C9puGaxsYLEIazy04hVtCx5sMu8/eg6F2l17UfIUgCKFP4XvHIYA3xbIplbv1HbbQlGKgmw3FhD+FEYwq/E0bg=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '157'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [500] '),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     def test_gateway_return_retype(self):
         resp_payload = utils.mk_payload(KEY_PATH, pairs=(
@@ -296,23 +291,21 @@ class CsobClientTests(TestCase):
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
         assert out['resultCode'] == conf.RETURN_CODE_OK
         assert len(responses.calls) == 1
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": '
-            '"MERCHANT", "orderNo": "666", "dttm": "20190502161426", "payOperation": '
-            '"payment", "payMethod": "card", "totalAmount": "66600", "currency": "CZK", '
-            '"closePayment": true, "returnUrl": "http://example.com", "returnMethod": '
-            '"POST", "cart": [{"name": "Fooo", "quantity": 1, "amount": "66600"}], '
-            '"description": "Fooo", "merchantData": "Rm9v", "language": "CZ", "ttlSec": '
-            '600, "signature": '
-            '"G5xVS2YCgiM58ooXK2FMJIinwoWHk65yMtI/CaZ6kORxHaG5QWQntGtYkocFH7S6ce4a3bsKoMbMMrdC1cYZsg=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '489'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": "MERCHANT", '
+            '"orderNo": "666", "dttm": "20190502161426", "payOperation": "payment", "payMethod": "card", '
+            '"totalAmount": "66600", "currency": "CZK", "closePayment": true, "returnUrl": "http://example.com", '
+            '"returnMethod": "POST", "cart": [{"name": "Fooo", "quantity": 1, "amount": "66600"}], '
+            '"merchantData": "Rm9v", "language": "cs", "ttlSec": 600, "signature": '
+            '"a5jKBePOpjgX0CjUkKFTe3UzedHzFgrvSsVf3NnSZ7uzuFyBIs5QEVxN9QZ8y7LKKRiigEzU8r6GZ3MiEFf9RA=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', "
+            "'user-agent': 'py-csob/1.0.0', 'Content-Length': '466'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
             '"resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "signature": '
-            '"DtDHJocYFvaIJWGzGL8ETIHNNgaxnSMQHAcUm7m0sF4CQBYEYAMdbnAZUq1wOHwf9sxfOnAJyfCriYW4429u3g=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"Zd+PKspUEkrsEyxTmXAwrX3pgfS45Sg35dhMo5Oi0aoI8LoLs3dlyPS9vEXw80fxKyduAl5ws8D0Fu2mXLy9bA=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     @responses.activate
     def test_payment_init_with_too_long_merchant_data(self):
@@ -347,22 +340,21 @@ class CsobClientTests(TestCase):
         assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
         assert out['resultCode'] == conf.RETURN_CODE_OK
         assert len(responses.calls) == 1
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": '
-            '"MERCHANT", "orderNo": "666", "dttm": "20190502161426", "payOperation": '
-            '"payment", "payMethod": "card", "totalAmount": "66600", "currency": "CZK", '
-            '"closePayment": true, "returnUrl": "http://example.com", "returnMethod": '
-            '"POST", "cart": [{"name": "Fooo", "quantity": 1, "amount": "66600"}], '
-            '"description": "Fooo", "language": "CZ", "ttlSec": 600, "signature": '
-            '"HJvyHAgAOJcoTO43OS6I68lbJI2tLWv2aPhx+/XMO1Xn4HJkL7UTflvMFjM+LLynYqRV4FxofMu6QqtO52ZfYg=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '465'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": "MERCHANT", '
+            '"orderNo": "666", "dttm": "20190502161426", "payOperation": "payment", "payMethod": "card", '
+            '"totalAmount": "66600", "currency": "CZK", "closePayment": true, "returnUrl": "http://example.com", '
+            '"returnMethod": "POST", "cart": [{"name": "Fooo", "quantity": 1, "amount": "66600"}], "language": "cs", '
+            '"ttlSec": 600, "signature": '
+            '"XH4RdW0dXrDh81dUHNKMrF+LVfZZtIOKJXzVUSxB/RVKK2Sb59SJvl8jonujNZC78GJkr5THLCbnMJNUfXpQag=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '442'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
             '"resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "signature": '
-            '"DtDHJocYFvaIJWGzGL8ETIHNNgaxnSMQHAcUm7m0sF4CQBYEYAMdbnAZUq1wOHwf9sxfOnAJyfCriYW4429u3g=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"Zd+PKspUEkrsEyxTmXAwrX3pgfS45Sg35dhMo5Oi0aoI8LoLs3dlyPS9vEXw80fxKyduAl5ws8D0Fu2mXLy9bA=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     @responses.activate
     def test_button(self):
@@ -382,19 +374,18 @@ class CsobClientTests(TestCase):
             ('resultMessage', 'OK'),
             ('dttime', self.dttime),
         ]))
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/button/; Data: {"merchantId": '
-            '"MERCHANT", "payId": "34ae55eb69e2cBF", "brand": "csob", "dttm": '
-            '"20190502161426", "signature": '
-            '"XN/VXyQsLgQtim+gCLO9bSbaHapaqOaSqUJXPsY1qA1gpb9jY2hgcu4snE+qGD5O6C+rn2rMXg/Hz7zYS/eJHw=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '202'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/button/; Data: {"merchantId": "MERCHANT", '
+            '"payId": "34ae55eb69e2cBF", "brand": "csob", "dttm": "20190502161426", "signature": '
+            '"keFD/Lt5k4OSGdQOL+PlDUELx1U3z0gSSlWch8Z/U7CK4S01YjLuKRjHBcfuMAQgZDvauZmYSFp7clcqy15dVA=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '202'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
             '"resultCode": 0, "resultMessage": "OK", "signature": '
-            '"ar0NFFzpbXAnjBjzpLg892h/7iDkn8AKXr+0a5oK4oH1cQtvaSaa6nccXJljWinkwQ8yAkIAg14JxZnQDYFHXw=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"mMvfLq/SzhagYKkJp/PnQ+Y9zoMJIGt1OznlxQLqq+gsyhOjUd4ghDtJtFt8bQkpr+jwj6kd/y8R5RyxZ7qgag=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
 
     def test_dttm_decode(self):
         self.assertEqual(utils.dttm_decode("20190502161426"), self.dttime)
@@ -430,25 +421,26 @@ class CsobClientTests(TestCase):
                     ('name', 'Konference Internet'),
                     ('quantity', 1),
                     ('amount', '100')])]),
-                ('description', 'Konference Internet a Technologie 19'),
+                ('customer', None),
+                ('order', None),
                 ('merchantData', None),
                 ('customerId', None),
-                ('language', 'CZ'),
+                ('language', 'cs'),
                 ('ttlSec', 600),
                 ('logoVersion', None),
                 ('colorSchemeVersion', None),
+                ('customExpiry', None),
             ))
         ])
-        self.log_handler.check((
-            'pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"payId": '
-            '"34ae55eb69e2cBF", "dttm": "20190502161426", "resultCode": 0, '
-            '"resultMessage": "OK", "paymentStatus": 1, "signature": '
-            '"DtDHJocYFvaIJWGzGL8ETIHNNgaxnSMQHAcUm7m0sF4CQBYEYAMdbnAZUq1wOHwf9sxfOnAJyfCriYW4429u3g=="}; '
-            'Json: None; {}'), (
-            'pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/0.7.0', 'Content-Length': '219'}"), (
-            'pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"payId": "34ae55eb69e2cBF", '
+            '"dttm": "20190502161426", "resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "signature": '
+            '"Zd+PKspUEkrsEyxTmXAwrX3pgfS45Sg35dhMo5Oi0aoI8LoLs3dlyPS9vEXw80fxKyduAl5ws8D0Fu2mXLy9bA=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '219'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
             '"resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "signature": '
-            '"DtDHJocYFvaIJWGzGL8ETIHNNgaxnSMQHAcUm7m0sF4CQBYEYAMdbnAZUq1wOHwf9sxfOnAJyfCriYW4429u3g=="}'), (
-            'pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}"
-        ))
+            '"Zd+PKspUEkrsEyxTmXAwrX3pgfS45Sg35dhMo5Oi0aoI8LoLs3dlyPS9vEXw80fxKyduAl5ws8D0Fu2mXLy9bA=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )

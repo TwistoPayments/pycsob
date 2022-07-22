@@ -41,9 +41,10 @@ class CsobClient(object):
         self._client = session
 
     def payment_init(self, order_no, total_amount, return_url, description, cart=None,
-                     customer_id=None, currency='CZK', language='CZ', close_payment=True,
+                     customer_id=None, currency='CZK', language='cs', close_payment=True,
                      return_method='POST', pay_operation='payment', ttl_sec=600,
-                     logo_version=None, color_scheme_version=None, merchant_data=None):
+                     logo_version=None, color_scheme_version=None, merchant_data=None,
+                     customer_data=None, order=None, custom_expiry=None, pay_method='card'):
         """
         Initialize transaction, sum of cart items must be equal to total amount
         If cart is None, we create it for you from total_amount and description values.
@@ -67,9 +68,10 @@ class CsobClient(object):
         :param total_amount:
         :param return_url: URL to be returned to from payment gateway
         :param cart: items in cart, currently min one item, max two as mentioned in CSOB spec
-        :param description: order description
+        :param description: product name
         :param customer_id: optional customer id
-        :param language: supported languages: 'CZ', 'EN', 'DE', 'SK', 'HU', 'IT', 'JP', 'PL', 'PT', 'RO', 'RU', 'SK', 'ES', 'TR' or 'VN'
+        :param language: supported languages: 'cs', 'en', 'de', 'sk', 'hu', 'it', 'jp', 'pl', 'pt', 'ro', 'ru', 'sk',
+                                              'es', 'tr' or 'vn'
         :param currency: supported currencies: 'CZK', 'EUR', 'USD', 'GBP'
         :param close_payment:
         :param return_method: method which be used for return to shop from gateway POST (default) or GET
@@ -78,11 +80,12 @@ class CsobClient(object):
         :param logo_version: Logo version number
         :param color_scheme_version: Color scheme version number
         :param merchant_data: bytearray of merchant data
+        :param customer_data: Additional customer purchase data
+        :param order: Additional purchase data related to the order
+        :param custom_expiry: Custom payment expiration, format YYYYMMDDHHMMSS
+        :param pay_method: 'card' = card payment, 'card#LVP' = card payment with low value payment
         :return: response from gateway as OrderedDict
         """
-
-        if len(description) > 255:
-            raise ValueError('Description length is over 255 chars')
 
         if merchant_data:
             merchant_data = b64encode(merchant_data).decode("UTF-8")
@@ -99,29 +102,27 @@ class CsobClient(object):
                 ])
             ]
 
-        # Fix invalid language code type (country code).
-        lang_code = language.upper()[:2]
-        language = {'CS': 'CZ'}.get(lang_code, lang_code)
-
         payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
             ('orderNo', str(order_no)),
             ('dttm', utils.dttm()),
             ('payOperation', pay_operation),
-            ('payMethod', 'card'),
+            ('payMethod', pay_method),
             ('totalAmount', total_amount),
             ('currency', currency),
             ('closePayment', close_payment),
             ('returnUrl', return_url),
             ('returnMethod', return_method),
             ('cart', cart),
-            ('description', description),
+            ('customer', customer_data),
+            ('order', order),
             ('merchantData', merchant_data),
             ('customerId', customer_id),
-            ('language', language),
+            ('language', language[:2]),
             ('ttlSec', ttl_sec),
             ('logoVersion', logo_version),
             ('colorSchemeVersion', color_scheme_version),
+            ('customExpiry', custom_expiry),
         ))
         url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/init')
         r = self._client.post(url, data=json.dumps(payload))
@@ -201,48 +202,13 @@ class CsobClient(object):
         """
         url = utils.mk_url(
             base_url=self.base_url,
-            endpoint_url='customer/info/',
-            payload=utils.mk_payload(self.f_key, pairs=(
-                ('merchantId', self.merchant_id),
-                ('customerId', customer_id),
-                ('dttm', utils.dttm())
-            ))
+            endpoint_url='echo/customer'
         )
-        r = self._client.get(url)
-        return utils.validate_response(r, self.f_pubkey)
-
-    def oneclick_init(self, orig_pay_id, order_no, total_amount, currency='CZK', description=None):
-        """
-        Initialize one-click payment. Before this, you need to call payment_init(..., pay_operation='oneclickPayment')
-        It will create payment template for you. Use pay_id returned from payment_init as orig_pay_id in this method.
-        """
-
-        payload = utils.mk_payload(self.f_key, pairs=(
+        payload=utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
-            ('origPayId', orig_pay_id),
-            ('orderNo', str(order_no)),
-            ('dttm', utils.dttm()),
-            ('totalAmount', total_amount),
-            ('currency', currency),
-            ('description', description),
+            ('customerId', customer_id),
+            ('dttm', utils.dttm())
         ))
-        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/init')
-        r = self._client.post(url, data=json.dumps(payload))
-        return utils.validate_response(r, self.f_pubkey)
-
-    def oneclick_start(self, pay_id):
-        """
-        Start one-click payment. After 2 - 3 seconds it is recommended to call payment_status().
-
-        :param pay_id: use pay_id returned by oneclick_init()
-        """
-
-        payload = utils.mk_payload(self.f_key, pairs=(
-            ('merchantId', self.merchant_id),
-            ('payId', pay_id),
-            ('dttm', utils.dttm()),
-        ))
-        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/oneclick/start')
         r = self._client.post(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)
 

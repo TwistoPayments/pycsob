@@ -69,11 +69,13 @@ PAYMENT_STATUSES = {
 HTTP_STATUSES = {
     200: 'OK',
     400: 'Bad Request',
+    401: 'Unauthorized',
     403: 'Forbidden',
     404: 'Not Found',
     405: 'Method Not Allowed',
     429: 'Too Many Requests',
-    503: 'Service Unavailable'
+    500: 'Internal Server Error',
+    503: 'Service Unavailable',
 }
 
 HTTP_TIMEOUT = (3.05, 12)  # http://docs.python-requests.org/en/master/user/advanced/#timeouts
