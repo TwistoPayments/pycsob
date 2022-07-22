@@ -1,14 +1,10 @@
 # coding: utf-8
 from base64 import b64encode, b64decode
 import json
-import logging
-import requests
 import requests.adapters
 from collections import OrderedDict
 
 from . import conf, utils
-
-log = logging.getLogger('pycsob')
 
 
 class HTTPAdapter(requests.adapters.HTTPAdapter):
@@ -37,7 +33,7 @@ class CsobClient(object):
         self.f_key = private_key_file
         self.f_pubkey = csob_pub_key_file
 
-        session = requests.Session()
+        session = utils.PyscobSession()
         session.headers = conf.HEADERS
         session.mount('https://', HTTPAdapter())
         session.mount('http://', HTTPAdapter())

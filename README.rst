@@ -139,4 +139,58 @@ Of course you can use standard requests's methods on ``response`` object.
     r.status_code
     #[Out]# 200
 
+Logging:
+--------
+
+If you need to solve a problem, you can turn on request and response logging.
+In the settings, set the logger ``pycsob`` to the ``INFO`` level.
+If you set level ``DEBUG``, the response headers will also be displayed.
+
+For Django set site_cfg/settings.py:
+
+.. code-block:: python
+
+    LOGGING = {
+        ...
+        'loggers': {
+            ...
+            'pycsob': {
+                'level': 'DEBUG',  # or INFO
+            }
+        ...
+        }
+    }
+
+Or in general for client logging to the console:
+
+.. code-block:: python
+
+    import logging
+    from pycsob.client import CsobClient
+
+    logger = logging.getLogger("pycsob")
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler())
+
+Then display a communication on the console:
+
+.. code-block:: python
+
+    from pycsob.client import CsobClient
+
+    KEY_PATH = 'tests_pycsob/fixtures/test.key'
+    CSOB_PUB_KEY_PATH = 'yourpath/csob-public.key'
+    client = CsobClient(merchant_id='MERCHANT', base_url='https://iapi.iplatebnibrana.csob.cz',
+                        private_key_file=KEY_PATH, csob_pub_key_file=CSOB_PUB_KEY_PATH)
+    client.echo()
+
+.. code-block::
+
+    INFO Pycsob request POST: https://iapi.iplatebnibrana.csob.cz/echo/; Data: {"merchantId": "MERCHANT", "dttm": "20211004143621", "signature": "bOAdjgAdiCV4Eb83cv/Whhkk18+1ZHXyZDTF3qLLalxQQ6RbS5dr3e04TlLut7SZ366wMlCycRm/OcMYtzhuWg=="}; Json: None; {}
+    DEBUG Pycsob request headers: {'content-type': 'application/json', 'user-agent': 'py-csob/0.7.0', 'Content-Length': '415'}
+    INFO Pycsob response: [404] <html><body>No service was found.</body></html>
+    DEBUG Pycsob response headers: {'Date': 'Mon, 04 Oct 2021 12:34:43 GMT', 'Content-Type': 'text/html;charset=utf-8', 'Content-Length': '47', 'Connection': 'keep-alive', 'Strict-Transport-Security': '31536000', 'X-Content-Type-Options': 'nosniff', 'X-XSS-Protection': '1; mode=block', 'Set-Cookie': 'COOKIE=!75Nl7TEDKeDZ7K1WBRXghHdGYkGcpNs67eHiqFqNIhpMvkjn8bZpwV3eFt/NETwOEPOM7MWItRbl0PcBMrVKU3ry41CzfobdNVeS+7zE6Q==; path=/; Secure; HttpOnly, TS0189cac5=0109e0ddfbbb13789e164510c58ee0d90933527dc24d6c0e29c511be545848b36cf506bb150c4e70c563bbbd96568176f61f72bfc8238416e0fde42a90cb18385bda35fd54; Path=/; Secure; HTTPOnly, TS774c8e5c029=08fdf8696aab2800cb7e1ec4cd5e34e549d7daafc75532c101d951da6a0ee591bb5e45a973ba8c2e249dfc6539005ac4; Max-Age=30;Path=/', 'P3P': 'CP="{}"'}
+
+-----
+
 Please look at the code for other available methods and their usage.

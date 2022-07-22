@@ -1,6 +1,7 @@
-import sys
 import datetime
+import logging
 import re
+import requests
 from base64 import b64encode, b64decode
 from collections import OrderedDict
 from Crypto.Hash import SHA
@@ -11,9 +12,31 @@ from . import conf
 
 from urllib.parse import urljoin, quote_plus
 
+LOGGER = logging.getLogger('pycsob')
+
 
 class CsobVerifyError(Exception):
     pass
+
+
+class PyscobSession(requests.Session):
+    """Request session with logging requests."""
+
+    def post(self, url, data=None, json=None, **kwargs):
+        LOGGER.info("Pycsob request POST: {}; Data: {}; Json: {}; {}".format(url, data, json, kwargs))
+        return super().post(url, data, json, **kwargs)
+
+    def get(self, url, **kwargs):
+        LOGGER.info("Pycsob request GET: {}; {}".format(url, kwargs))
+        return super().get(url, **kwargs)
+
+    def put(self, url, data=None, **kwargs):
+        LOGGER.info("Pycsob request PUT: {}; Data: {}; {}".format(url, data, kwargs))
+        return super().put(url, data, **kwargs)
+
+    def send(self, request, **kwargs):
+        LOGGER.debug("Pycsob request headers: {}".format(request.headers))
+        return super().send(request, **kwargs)
 
 
 def sign(payload, keyfile):
@@ -72,6 +95,9 @@ def dttm_decode(value):
 
 
 def validate_response(response, key):
+    LOGGER.info("Pycsob response: [{}] {}".format(response.status_code, response.text))
+    LOGGER.debug("Pycsob response headers: {}".format(response.headers))
+
     response.raise_for_status()
 
     data = response.json()
