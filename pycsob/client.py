@@ -87,11 +87,6 @@ class CsobClient(object):
         :return: response from gateway as OrderedDict
         """
 
-        if merchant_data:
-            merchant_data = b64encode(merchant_data).decode("UTF-8")
-            if len(merchant_data) > 255:
-                raise ValueError('Merchant data length encoded to BASE64 is over 255 chars')
-
         # fill cart if not set
         if not cart:
             cart = [
@@ -116,7 +111,7 @@ class CsobClient(object):
             ('cart', cart),
             ('customer', customer_data),
             ('order', order),
-            ('merchantData', merchant_data),
+            ('merchantData', utils.encode_merchant_data(merchant_data)),
             ('customerId', customer_id),
             ('language', language[:2]),
             ('ttlSec', ttl_sec),
@@ -204,7 +199,7 @@ class CsobClient(object):
             base_url=self.base_url,
             endpoint_url='echo/customer'
         )
-        payload=utils.mk_payload(self.f_key, pairs=(
+        payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
             ('customerId', customer_id),
             ('dttm', utils.dttm())
@@ -250,14 +245,24 @@ class CsobClient(object):
                 pairs += ((k, v),)
         return utils.mk_payload(keyfile=self.f_key, pairs=pairs)
 
-    def button(self, pay_id, brand):
+    def button_init(
+            self, order_no, total_amount, client_ip, return_url,
+            language='cs', return_method='POST', merchant_data=None):
         "Get url to the button."
+
         payload = utils.mk_payload(self.f_key, pairs=(
             ('merchantId', self.merchant_id),
-            ('payId', pay_id),
-            ('brand', brand),
+            ('orderNo', str(order_no)),
             ('dttm', utils.dttm()),
+            ('clientIp', client_ip),
+            ('totalAmount', total_amount),
+            ('currency', 'CZK'),
+            ('returnUrl', return_url),
+            ('returnMethod', return_method),
+            ('brand', 'csob'),
+            ('merchantData', utils.encode_merchant_data(merchant_data)),
+            ('language', language[:2]),
         ))
-        url = utils.mk_url(base_url=self.base_url, endpoint_url='payment/button/')
+        url = utils.mk_url(base_url=self.base_url, endpoint_url='button/init')
         r = self._client.post(url, data=json.dumps(payload))
         return utils.validate_response(r, self.f_pubkey)

@@ -150,3 +150,12 @@ def get_card_provider(long_masked_number):
         if rx.match(long_masked_number[:6]):
             return provider_id, conf.CARD_PROVIDERS[provider_id]
     return None, None
+
+
+def encode_merchant_data(merchant_data):
+    """Encode merchant data. Raise ValueError if data length > 255."""
+    if merchant_data is not None:
+        merchant_data = b64encode(merchant_data).decode("UTF-8")
+        if len(merchant_data) > 255:
+            raise ValueError('Merchant data length encoded to BASE64 is over 255 chars')
+    return merchant_data

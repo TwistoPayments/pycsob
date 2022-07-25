@@ -1,18 +1,18 @@
 # coding: utf-8
-import os
 import datetime
 import json
-import pytest
-from testfixtures import LogCapture
+import os
 from collections import OrderedDict
-from freezegun import freeze_time
-from requests.exceptions import HTTPError
 from unittest import TestCase
 from unittest.mock import call, patch
-from urllib3_mock import Responses
 
+import pytest
+from freezegun import freeze_time
 from pycsob import conf, utils
 from pycsob.client import CsobClient
+from requests.exceptions import HTTPError
+from testfixtures import LogCapture
+from urllib3_mock import Responses
 
 KEY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'fixtures', 'test.key'))
 PAY_ID = '34ae55eb69e2cBF'
@@ -357,16 +357,15 @@ class CsobClientTests(TestCase):
         )
 
     @responses.activate
-    def test_button(self):
-        resp_url = '/payment/button/'
+    def test_button_init(self):
         resp_payload = utils.mk_payload(KEY_PATH, pairs=(
             ('payId', PAY_ID),
             ('dttm', utils.dttm()),
             ('resultCode', conf.RETURN_CODE_OK),
             ('resultMessage', 'OK'),
         ))
-        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
-        out = self.c.button(PAY_ID, 'csob').payload
+        responses.add(responses.POST, '/button/init', body=json.dumps(resp_payload), status=200)
+        out = self.c.button_init(PAY_ID, 10000, '127.0.0.1', 'https://web.foo/').payload
         self.assertEqual(out, OrderedDict([
             ('payId', '34ae55eb69e2cBF'),
             ('dttm', self.dttm),
@@ -375,15 +374,18 @@ class CsobClientTests(TestCase):
             ('dttime', self.dttime),
         ]))
         self.log_handler.check(
-            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/button/; Data: {"merchantId": "MERCHANT", '
-            '"payId": "34ae55eb69e2cBF", "brand": "csob", "dttm": "20190502161426", "signature": '
-            '"keFD/Lt5k4OSGdQOL+PlDUELx1U3z0gSSlWch8Z/U7CK4S01YjLuKRjHBcfuMAQgZDvauZmYSFp7clcqy15dVA=="}; '
-            'Json: None; {}'),
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/button/init; Data: {"merchantId": '
+             '"MERCHANT", "orderNo": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+             '"clientIp": "127.0.0.1", "totalAmount": 10000, "currency": "CZK", '
+             '"returnUrl": "https://web.foo/", "returnMethod": "POST", "brand": "csob", '
+             '"language": "cs", "signature": '
+             '"D3rppiWK7zp1B9ra94cxQczOwfUVrRnyd8oLRTd4guC+qXALRXKHgqc7AVPnM3kuMG6fRY9B4X9+10n/603C9Q=="}; '
+             'Json: None; {}'),
             ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
-            "'py-csob/1.0.0', 'Content-Length': '202'}"),
-            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
-            '"resultCode": 0, "resultMessage": "OK", "signature": '
-            '"mMvfLq/SzhagYKkJp/PnQ+Y9zoMJIGt1OznlxQLqq+gsyhOjUd4ghDtJtFt8bQkpr+jwj6kd/y8R5RyxZ7qgag=="}'),
+             "'py-csob/1.0.0', 'Content-Length': '345'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": '
+             '"20190502161426", "resultCode": 0, "resultMessage": "OK", "signature": '
+             '"mMvfLq/SzhagYKkJp/PnQ+Y9zoMJIGt1OznlxQLqq+gsyhOjUd4ghDtJtFt8bQkpr+jwj6kd/y8R5RyxZ7qgag=="}'),
             ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
         )
 

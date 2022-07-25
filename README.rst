@@ -36,7 +36,8 @@ eAPI-v1.9 Wiki
 
 https://github.com/csob/paymentgateway/wiki/eAPI-v1.9
 
-Caution! This module implements only `Basic Payment <https://github.com/csob/paymentgateway/wiki/Basic-Payment>`_ from API v1.9.
+Caution! This module implements only `Basic Payment <https://github.com/csob/paymentgateway/wiki/Basic-Payment>`_ and
+`Methods for ČSOB Payment Button <https://github.com/csob/paymentgateway/wiki/Methods-for-%C4%8CSOB-Payment-Button>`_ from API v1.9.
 
 Basic usage:
 ------------
