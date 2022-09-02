@@ -3,7 +3,7 @@ import re
 from base64 import b64encode, b64decode
 from collections import OrderedDict
 
-from Crypto.Hash import SHA
+from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 from requests import Response
@@ -21,7 +21,7 @@ def sign(payload: OrderedDict | dict, keyfile: str):
     msg = mk_msg_for_sign(payload)
     with open(keyfile, "rb") as f:
         key = RSA.importKey(f.read())
-    h = SHA.new(msg)
+    h = SHA256.new(msg)
     signer = PKCS1_v1_5.new(key)
     return b64encode(signer.sign(h)).decode()
 
@@ -30,7 +30,7 @@ def verify(payload: OrderedDict | dict, signature: bytes, pubkeyfile: str):
     msg = mk_msg_for_sign(payload)
     with open(pubkeyfile, "rb") as f:
         key = RSA.importKey(f.read())
-    h = SHA.new(msg)
+    h = SHA256.new(msg)
     verifier = PKCS1_v1_5.new(key)
     return verifier.verify(h, b64decode(signature))
 
@@ -41,8 +41,15 @@ def mk_msg_for_sign(payload: OrderedDict | dict) -> bytes:
     for po in possible_objects:
         if po in payload and payload[po] not in conf.EMPTY_VALUES:
             object_msg = []
-            for one in payload[po]:
-                object_msg.extend(one.values())
+            if po == "cart":
+                for one in payload[po]:
+                    object_msg.extend(one.values())
+            else:
+                for val in payload[po].values():
+                    if isinstance(val, dict):
+                        object_msg.extend(val.values())
+                    else:
+                        object_msg.append(val)
             payload[po] = "|".join(map(str_or_jsbool, object_msg))
     msg = "|".join(map(str_or_jsbool, payload.values()))
     return msg.encode("utf-8")

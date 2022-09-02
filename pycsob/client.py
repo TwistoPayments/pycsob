@@ -113,9 +113,6 @@ class CsobClient:
         :return: response from gateway as OrderedDict
         """
 
-        if len(description) > 255:
-            raise ValueError("Description length is over 255 chars")
-
         if merchant_data:
             merchant_data = b64encode(merchant_data).decode("UTF-8")
             if len(merchant_data) > 255:
@@ -176,7 +173,6 @@ class CsobClient:
                 ("cart", cart),
                 ("customer", customer),
                 ("order", order),
-                ("description", description),
                 ("merchantData", merchant_data),
                 ("customerId", customer_id),
                 ("language", language),
