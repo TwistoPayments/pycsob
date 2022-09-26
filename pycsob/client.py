@@ -68,7 +68,7 @@ class CsobClient(object):
         :param total_amount:
         :param return_url: URL to be returned to from payment gateway
         :param cart: items in cart, currently min one item, max two as mentioned in CSOB spec
-        :param description: product name
+        :param description: product name - it is a part of the cart
         :param customer_id: optional customer id
         :param language: supported languages: 'cs', 'en', 'de', 'sk', 'hu', 'it', 'jp', 'pl', 'pt', 'ro', 'ru', 'sk',
                                               'es', 'tr' or 'vn'
