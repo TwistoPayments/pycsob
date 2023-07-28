@@ -33,7 +33,7 @@ class CsobClient(object):
         self.f_key = private_key_file
         self.f_pubkey = csob_pub_key_file
 
-        session = utils.PyscobSession()
+        session = utils.PycsobSession()
         session.headers = conf.HEADERS
         session.mount('https://', HTTPAdapter())
         session.mount('http://', HTTPAdapter())

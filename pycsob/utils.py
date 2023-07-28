@@ -19,7 +19,7 @@ class CsobVerifyError(Exception):
     pass
 
 
-class PyscobSession(requests.Session):
+class PycsobSession(requests.Session):
     """Request session with logging requests."""
 
     def post(self, url, data=None, json=None, **kwargs):
