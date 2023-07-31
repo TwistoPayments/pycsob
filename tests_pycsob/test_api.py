@@ -357,6 +357,41 @@ class CsobClientTests(TestCase):
         )
 
     @responses.activate
+    def test_payment_init_custom_payment(self):
+        resp_url = '/payment/init'
+        resp_payload = utils.mk_payload(KEY_PATH, pairs=(
+            ('payId', PAY_ID),
+            ('dttm', utils.dttm()),
+            ('resultCode', conf.RETURN_CODE_OK),
+            ('resultMessage', 'OK'),
+            ('paymentStatus', 1),
+            ('customerCode', 'E61EC8'),
+        ))
+        responses.add(responses.POST, resp_url, body=json.dumps(resp_payload), status=200)
+        out = self.c.payment_init(order_no=666, total_amount='66600', return_url='http://example.com',
+                                  description='Fooo', pay_operation='customPayment', custom_expiry='20190531120000'
+                                  ).payload
+
+        assert out['paymentStatus'] == conf.PAYMENT_STATUS_INIT
+        assert out['resultCode'] == conf.RETURN_CODE_OK
+        assert len(responses.calls) == 1
+        self.log_handler.check(
+            ('pycsob', 'INFO', 'Pycsob request POST: https://gw.cz/payment/init; Data: {"merchantId": "MERCHANT", '
+            '"orderNo": "666", "dttm": "20190502161426", "payOperation": "customPayment", "payMethod": "card", '
+            '"totalAmount": "66600", "currency": "CZK", "closePayment": true, "returnUrl": "http://example.com", '
+            '"returnMethod": "POST", "cart": [{"name": "Fooo", "quantity": 1, "amount": "66600"}], "language": "cs", '
+            '"ttlSec": 600, "customExpiry": "20190531120000", "signature": '
+            '"H+eKbex5KdHUtZ/fxB5vfMlgEkH3H6RfDj3oR9i/R/8HYInmyP0tz6+lqzF8EztHmpA/vxevW9qvNTgV535eZw=="}; '
+            'Json: None; {}'),
+            ('pycsob', 'DEBUG', "Pycsob request headers: {'content-type': 'application/json', 'user-agent': "
+            "'py-csob/1.0.0', 'Content-Length': '482'}"),
+            ('pycsob', 'INFO', 'Pycsob response: [200] {"payId": "34ae55eb69e2cBF", "dttm": "20190502161426", '
+            '"resultCode": 0, "resultMessage": "OK", "paymentStatus": 1, "customerCode": "E61EC8", "signature": '
+            '"KmqB9foNOz7aJuyujNcHDpD7rmPZzkN/AePWw62h5xYxowrd1Jb5o6JdF1S76USHaPn4yc+iOIM+pw601l3PxQ=="}'),
+            ('pycsob', 'DEBUG', "Pycsob response headers: {'Content-Type': 'text/plain'}")
+        )
+
+    @responses.activate
     def test_button_init(self):
         resp_payload = utils.mk_payload(KEY_PATH, pairs=(
             ('payId', PAY_ID),
