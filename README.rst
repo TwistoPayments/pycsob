@@ -36,12 +36,13 @@ eAPI-v1.9 Wiki
 
 https://github.com/csob/paymentgateway/wiki/eAPI-v1.9
 
-Caution! This module implements only `Basic Payment <https://github.com/csob/paymentgateway/wiki/Basic-Payment>`_ and
+Caution! This module implements only `Basic Payment <https://github.com/csob/paymentgateway/wiki/Basic-Payment>`_,
+`Custom Payment <https://github.com/csob/paymentgateway/wiki/Custom-Payment>`_ and
 `Methods for ČSOB Payment Button <https://github.com/csob/paymentgateway/wiki/Methods-for-%C4%8CSOB-Payment-Button>`_ from API v1.9.
 
 Basic usage:
 ------------
-
+ 
 .. code-block:: python
 
     from pycsob.client import CsobClient
@@ -61,11 +62,10 @@ like ``payload`` or ``extensions``.
     #[Out]#              ('dttm', '20160615104254'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 1)]),
-    #[Out]#              ('merchantData', [1, 2, 3])]),
-    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 42, 54)),
+    #[Out]#              ('paymentStatus', 1),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 42, 54))])
 
-After payment init get URL to redirect to for payId obtained from previous step.
+After payment init get URL to redirect to for ``payId`` obtained from previous step.
 
 .. code-block:: python
 
@@ -83,8 +83,28 @@ You can check payment status.
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
     #[Out]#              ('paymentStatus', 7),
-    #[Out]#              ('authCode', '042760')]),
-    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 1)),
+    #[Out]#              ('authCode', '042760'),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 1))])
+
+Custom payments are initialized with ``c.payment_init(pay_operation='customPayment')``, you can optionally set 
+payment validity by ``custom_expiry='YYYYMMDDhhmmss'``.
+
+.. code-block:: python
+
+    r = c.payment_init(14, 1000000, 'http://twisto.dev/', 'Testovaci nakup', return_method='POST',
+                       pay_operation='customPayment', custom_expiry='20160630120000')
+    r.payload
+    #[Out]# OrderedDict([('payId', 'b627c1e4e60fcBF'),
+    #[Out]#              ('dttm', '20160615104254'),
+    #[Out]#              ('resultCode', 0),
+    #[Out]#              ('resultMessage', 'OK'),
+    #[Out]#              ('paymentStatus', 1)]),
+    #[Out]#              ('customerCode', 'E61EC8'),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 42, 54))])
+
+Send (by whatever means) obtained ``customerCode`` to customer who can then perform payment anytime within its validity
+on URL ``https://platebnibrana.csob.cz/payment/{customerCode}`` (``c.get_payment_process_url`` is not applicable
+for custom payments).
 
 You can also use one-click payment methods. For this you need
 to call ``c.payment_init(pay_operation='oneclickPayment')``. After this transaction confirmed
@@ -98,8 +118,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('dttm', '20160615104532'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 1)]),
-    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 32)),
+    #[Out]#              ('paymentStatus', 1),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 45, 32))])
 
     r = c.oneclick_start('ff7d3e7c6c4fdBF')
     r.payload
@@ -107,8 +127,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('dttm', '20160615104619'),
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
-    #[Out]#              ('paymentStatus', 2)]),
-    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 19)),
+    #[Out]#              ('paymentStatus', 2),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 19))])
 
     r = c.payment_status('ff7d3e7c6c4fdBF')
     r.payload
@@ -117,8 +137,8 @@ you can use obtained ``payId`` as template for one-click payment.
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
     #[Out]#              ('paymentStatus', 7),
-    #[Out]#              ('authCode', '168164')]),
-    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 43)),
+    #[Out]#              ('authCode', '168164'),
+    #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 46, 43))])
 
 Of course you can use standard requests's methods on ``response`` object.
 
