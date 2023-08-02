@@ -4,7 +4,7 @@ from os.path import join, dirname
 from setuptools import setup
 from setuptools.command.test import test
 
-import pycsob
+from pycsob import __version__
 
 
 def parse_reqs(f='requirements.pip'):
@@ -40,7 +40,7 @@ class PyTest(test):
 
 setup(
     name='pycsob',
-    version=pycsob.__versionstr__,
+    version=__version__,
     description='Python client for ČSOB Payment Gateway',
     long_description=long_description,
     long_description_content_type='text/x-rst',

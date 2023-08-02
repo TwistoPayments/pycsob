@@ -1,9 +1,9 @@
-from . import __versionstr__
+from . import __version__
 
 # app conf
 HEADERS = {
     'content-type': 'application/json',
-    'user-agent': 'py-csob/%s' % __versionstr__,
+    'user-agent': 'py-csob/%s' % __version__,
 }
 EMPTY_VALUES = ('', None, [], (), {})
 RESPONSE_KEYS = ('payId', 'customerId', 'dttm', 'resultCode', 'resultMessage', 'paymentStatus', 'authCode',
