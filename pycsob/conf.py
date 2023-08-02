@@ -1,13 +1,13 @@
-from . import __versionstr__
+from . import __version__
 
 # app conf
 HEADERS = {
     'content-type': 'application/json',
-    'user-agent': 'py-csob/%s' % __versionstr__,
+    'user-agent': 'py-csob/%s' % __version__,
 }
 EMPTY_VALUES = ('', None, [], (), {})
 RESPONSE_KEYS = ('payId', 'customerId', 'dttm', 'resultCode', 'resultMessage', 'paymentStatus', 'authCode',
-                 'merchantData')
+                 'merchantData', 'customerCode')
 
 # available languages and currencies
 LANGUAGES = 'CZ', 'EN', 'DE', 'SK', 'HU', 'IT', 'JP', 'PL', 'PT', 'RO', 'RU', 'SK', 'ES', 'TR', 'VN'
@@ -69,11 +69,13 @@ PAYMENT_STATUSES = {
 HTTP_STATUSES = {
     200: 'OK',
     400: 'Bad Request',
+    401: 'Unauthorized',
     403: 'Forbidden',
     404: 'Not Found',
     405: 'Method Not Allowed',
     429: 'Too Many Requests',
-    503: 'Service Unavailable'
+    500: 'Internal Server Error',
+    503: 'Service Unavailable',
 }
 
 HTTP_TIMEOUT = (3.05, 12)  # http://docs.python-requests.org/en/master/user/advanced/#timeouts
