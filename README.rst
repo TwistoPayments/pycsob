@@ -63,6 +63,7 @@ like ``payload`` or ``extensions``.
     #[Out]#              ('resultCode', 0),
     #[Out]#              ('resultMessage', 'OK'),
     #[Out]#              ('paymentStatus', 1),
+    #[Out]#              ('merchantData', [1, 2, 3])]),
     #[Out]#              ('dttime', datetime.datetime(2016, 6, 15, 10, 42, 54))])
 
 After payment init get URL to redirect to for ``payId`` obtained from previous step.
