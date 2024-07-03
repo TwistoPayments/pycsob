@@ -4,7 +4,7 @@ from os.path import join, dirname
 from setuptools import setup
 from setuptools.command.test import test
 
-import pycsob
+from pycsob import __version__
 
 
 def parse_reqs(f='requirements.pip'):
@@ -40,14 +40,16 @@ class PyTest(test):
 
 setup(
     name='pycsob',
-    version=pycsob.__versionstr__,
+    version=__version__,
     description='Python client for ČSOB Payment Gateway',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     author='Twisto',
     author_email='devs@twisto.cz',
     license='MIT',
     url='https://github.com/TwistoPayments/pycsob',
 
+    python_requires='>=3.9',
     packages=['pycsob', 'tests_pycsob'],
     include_package_data=True,
 
@@ -55,10 +57,10 @@ setup(
         "Development Status :: 4 - Beta",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Utilities",
     ],
     zip_safe=False,
